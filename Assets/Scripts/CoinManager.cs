@@ -13,6 +13,7 @@ public class CoinManager : NetworkBehaviour
 
 	//should be updated onj server and client;
 	[SyncVar (hook = "updateCoins")]public int currentCoins;
+
 	public Material clear;
 	public bool _isLocalPlayer = false;
 	public int maxCoins = 19;
@@ -104,12 +105,12 @@ public class CoinManager : NetworkBehaviour
 			//send to server
 
 			
-		if(_isLocalPlayer)Cmd_updateCoins(currentCoins);
+		if(_isLocalPlayer)GameManager.singleton.Cmd_Update_Coins(this, currentCoins);
 
 		
 
 	}
-
+	//enact server update on coins
 	void FixedUpdate ()
 	{
 		if (currentCoins>=0){
@@ -134,14 +135,12 @@ public class CoinManager : NetworkBehaviour
 		void updateCoins(int _currentCoins){
 		currentCoins=_currentCoins;
 		}
-	[Command]
 
 	void Cmd_updateCoins(int _currentCoins){
 		currentCoins=_currentCoins;
 
 	}
 
-	[ClientRpc] 
 	void Rpc_ChangeCoins (int arrayValue, bool _isAdd)
 	{
 		try {
@@ -159,8 +158,8 @@ public class CoinManager : NetworkBehaviour
 
 
 
-	[Command] 
-	void Cmd_Change_currentCoins (int _currentCoins)
+
+	void Change_currentCoins (int _currentCoins)
 	{
 		
 		currentCoins = _currentCoins;

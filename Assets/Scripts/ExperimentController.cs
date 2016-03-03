@@ -22,7 +22,7 @@ public class ExperimentController : NetworkBehaviour
 	public bool enter;
 	public Transform button;
 
-	GameObject[] gos;
+
 	public float transPos;
 
 	bool urlReturn;
@@ -193,7 +193,7 @@ public class ExperimentController : NetworkBehaviour
 				try {
 
 					if (_isLocalPlayer) {
-						Cmd_change_currentStage (stage_number, mode);
+						GameManager.singleton.Cmd_change_currentStage (this, stage_number, mode);
 					}
 				} catch {
 				}
@@ -206,7 +206,7 @@ public class ExperimentController : NetworkBehaviour
 	void updateMove ()
 	{
 		if (isHost & message != null)
-			Cmd_broadcast (message);
+			GameManager.singleton.Cmd_broadcast ( message);
 		if (isHost & urlReturn) {
 			string url;
 
@@ -246,32 +246,7 @@ public class ExperimentController : NetworkBehaviour
 
 		}
 	}
-	[Command]
-	void Cmd_broadcast (string message)
-	{
-		//send message to all players - use synvar on script on Canvas??
 
-		gos = GameObject.FindGameObjectsWithTag ("Player");
-		//update as player enters
-		foreach (GameObject go in gos) {
-			
-			try {
-				Transform tran = go.transform.Find ("FPCharacterCam").Find ("Canvas");
-		
-				tran = tran.Find ("Text");
-		
-				if (tran != null)
-					tran.gameObject.GetComponent<Text> ().text = message;
-				
-			} catch (Exception e) {
-
-				Debug.LogWarning (e);
-			}
-
-		}
-				
-
-	}
 
 
 	void callServer (string url, string find, string findInt, runState mode)
@@ -282,24 +257,7 @@ public class ExperimentController : NetworkBehaviour
 
 	}
 
-	[Command]
-	void Cmd_change_currentStage (int _stage_number, runState _mode)
-	{
-		foreach (ExperimentController  expCont in tokenBoxes) {
-			
-			Rpc_change_currentStage (_stage_number, _mode);
 
-		}
-
-	}
-
-	[ClientRpc] 
-	void Rpc_change_currentStage (int _stage_number, runState _mode)
-	{
-		stage_number = _stage_number;
-
-		mode = _mode;
-	}
 
 	IEnumerator FetchWWW (string url, string find, string findInt, runState _mode)
 	{

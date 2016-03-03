@@ -1,0 +1,9 @@
+#note no ‘/‘ at end of IP
+
+IP_Address = ztree.teachingforchange.edu.au
+
+IP_Addres = localhost:8100/ZTreeServer
+
+experiment_id = 1
+
+host = True

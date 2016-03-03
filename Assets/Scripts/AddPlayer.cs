@@ -56,7 +56,7 @@ public class AddPlayer : NetworkBehaviour
 	[Command]
 	public void Cmd_Spawn_Prefab (int boxCount)
 	{
-		//boxCOunt plus one to include experimenter
+		//boxCount plus one to include experimenter
 		GameManager.singleton.ServerRespawn(this, boxCount);
 	/*
 		playerPrefab = gameManager.playerPrefabs [boxCount];

@@ -147,7 +147,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 			
 				transform.rotation = spawnPoint.rotation;
 
-					Cmd_Get_Authority ();
+					//Cmd_Get_Authority ();
 
 				expController._isLocalPlayer = true;
 				tokenBox.GetComponent<CoinManager> ()._isLocalPlayer = true;
