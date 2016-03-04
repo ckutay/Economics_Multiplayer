@@ -35,6 +35,7 @@ public class AddPlayer : NetworkBehaviour
 				Canvas canvasgo = gameObject.GetComponentInChildren <Canvas> (true);
 				if (canvasgo) {
 					canvasgo.gameObject.SetActive (true);
+					canvasgo.enabled = true;
 					Text canvasText = canvasgo.transform.Find ("Text").gameObject.GetComponent<Text> ();
 					canvasText.text="You cannot join this game as the server is full";
 				}

@@ -85,6 +85,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	{
 		//when you have the participant number setup all the variables on participatncontroller to enable them to locate objects and select
 		if (isLocalPlayer) {
+			
 	
 			Debug.Log ("Assigned to box " + gameManager.boxCount);
 	
@@ -96,7 +97,8 @@ public class PlayerNetworkSetup : NetworkBehaviour
 			}
 			try {
 				boxCount=gameManager.boxCount;
-				tokenBox = gameManager.tokenBoxes [gameManager.boxCount];
+				//boxCount=1;
+				tokenBox = gameManager.tokenBoxes [boxCount];
 			} catch (Exception e) {
 				if (gameManager.boxCount > 0) {
 					if (canvasgo)
@@ -105,6 +107,8 @@ public class PlayerNetworkSetup : NetworkBehaviour
 					return;
 				}
 			}
+
+			//this is a player so set up experiment controller
 			if (canvasgo) {
 				
 				//if no canvas still on fpcontroller for experimenter
@@ -148,11 +152,13 @@ public class PlayerNetworkSetup : NetworkBehaviour
 			
 			
 				transform.rotation = spawnPoint.rotation;
-
-					//Cmd_Get_Authority ();
+				//gie authority to player over experiment box
+				Debug.LogWarning("Giving Authority");
+				Cmd_Get_Authority ( boxCount);
 
 				expController._isLocalPlayer = true;
 				tokenBox.GetComponent<CoinManager> ()._isLocalPlayer = true;
+				tokenBox.GetComponent<CoinManager> ().SetToClear ();
 	
 
 
@@ -178,14 +184,19 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	}
 
 	[Command]
-	void Cmd_Get_Authority ()
+
+	//Called from playernetworksetup for assigning cotnrol of token box
+	public void Cmd_Get_Authority (int _boxCount)
 	{
 
-		NetworkIdentity nwI = tokenBox.gameObject.AddComponent<NetworkIdentity> ();
-		nwI.AssignClientAuthority (connectionToServer);
-		//NetworkServer.SpawnWithClientAuthority (this.expController.gameObject, this.connectionToClient);
+		NetworkIdentity nwI = gameManager.tokenBoxes[_boxCount].gameObject.AddComponent<NetworkIdentity> ();
+		nwI.localPlayerAuthority = true;
+		Debug.LogWarning (gameManager.tokenBoxes [_boxCount].gameObject);
+		Debug.LogWarning(connectionToClient);
+		NetworkServer.SpawnWithClientAuthority ( gameManager.tokenBoxes[_boxCount].gameObject, connectionToClient);
 
 	}
+
 	//from AddPlayer when instatiate character
 	[ClientRpc]
 	public void	Rpc_set_prefab ()

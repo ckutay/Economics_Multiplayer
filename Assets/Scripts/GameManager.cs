@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using System;
 
 public class GameManager : NetworkBehaviour {
-	 
+	//these are the player prefabs and must all be in the NetworkManager spawnPrefab list;
 	public GameObject[] playerPrefabs;
 	static public GameManager singleton;
 	public GameObject [] tokenBoxes;
@@ -15,7 +16,7 @@ public class GameManager : NetworkBehaviour {
 	Text canvasText;
 	Text canvasTextUp;
 	public string message="";
-
+	NetworkManager networkManager;
 
 	void Awake()
 	{
@@ -24,6 +25,12 @@ public class GameManager : NetworkBehaviour {
 	// Use this for initialization
 	void Start () 
 	{
+		//direty check
+		networkManager = GetComponent<NetworkManager> ();
+
+		if (playerPrefabs.ToList()!=networkManager.spawnPrefabs)
+			Debug.LogError("The player prefabs on GameManager must be included in the spawnPrefabs in NetworkManager, including Experimenter prefab");
+
 		//setup is is -1 when assigned expereimenter
 		boxCount = -2;
 		//get all the canvas texts - 1 per participant
@@ -50,9 +57,10 @@ public class GameManager : NetworkBehaviour {
 		//	GameObject.FindObjectOfType<AddPlayer>().Cmd_Spawn_Prefab();
 	}
 
-	// called on the server
+	// called on the server by Addplayer
 	public void ServerRespawn(AddPlayer addPlayer, int boxCount)
 	{
+		
 		//zero is expereimenter prefab
 		GameObject playerPrefab = playerPrefabs[boxCount];
 		Destroy (addPlayer.gameObject);
@@ -64,6 +72,9 @@ public class GameManager : NetworkBehaviour {
 
 
 	}
+
+
+
 	//called form coin manager as has no authority
 	[Command]
 	public void Cmd_Update_Coins(int _boxCount, int _currentCoins){

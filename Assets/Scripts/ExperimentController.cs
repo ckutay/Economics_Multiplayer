@@ -119,9 +119,9 @@ public class ExperimentController : NetworkBehaviour
 				switch (mode) {
 				case runState.start:
 					coinManager.result = false;
-					canvasText.text = "Wait for others to join you team";
+					canvasText.text = "Wait for others to join you";
 				//show this before starts
-			
+
 					break;
 
 				case runState.wait:
@@ -145,7 +145,7 @@ public class ExperimentController : NetworkBehaviour
 					canvasText.text = message + " You have selected " + coinManager.currentCoins + " coins";
 					if (coinManager.isFinished & _isLocalPlayer) {
 						//cannot enter anymore
-						coinManager.SetToClear ();
+
 						coinManager.isFinished = false;
 					
 						//send in result to ZTree

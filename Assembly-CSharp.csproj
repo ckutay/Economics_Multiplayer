@@ -58,6 +58,7 @@
      <Compile Include="Assets\Scripts\IKDummyLookAt.cs" />
      <Compile Include="Assets\Scripts\IKLookAt.cs" />
      <Compile Include="Assets\Scripts\ParticipantController.cs" />
+     <Compile Include="Assets\Scripts\ParticipantControllerold.cs" />
      <Compile Include="Assets\Scripts\PlayerNetworkSetup.cs" />
      <Compile Include="Assets\Scripts\PlayerNetworkSetupError.cs" />
      <Compile Include="Assets\Scripts\SetupServer.cs" />
