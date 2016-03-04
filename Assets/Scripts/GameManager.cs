@@ -66,9 +66,9 @@ public class GameManager : NetworkBehaviour {
 	}
 	//called form coin manager as has no authority
 	[Command]
-	public void Cmd_Update_Coins(CoinManager CM, int _currentCoins){
+	public void Cmd_Update_Coins(int _boxCount, int _currentCoins){
 
-		CM.currentCoins = _currentCoins;
+		tokenBoxes[_boxCount].GetComponent<CoinManager>().currentCoins = _currentCoins;
 	}
 	//caleld form experiment controller to send update messages from ZTree
 	[Command]
@@ -99,14 +99,14 @@ public class GameManager : NetworkBehaviour {
 	}
 	//called form expereiment controlle r to update stage from Ztree
 	[Command]
-	public void Cmd_change_currentStage (ExperimentController exc_cont, int _stage_number, ExperimentController.runState _mode)
+	public void Cmd_change_currentStage ( int _stage_number, ExperimentController.runState _mode)
 	{
 
-		foreach (ExperimentController  exp_conts in exc_cont.tokenBoxes) {
+		foreach (GameObject  exp_conts in tokenBoxes) {
+			ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
+			exp_cont.stage_number = _stage_number;
 
-			exp_conts.stage_number = _stage_number;
-
-			exp_conts.mode = _mode;
+			exp_cont.mode = _mode;
 
 		}
 

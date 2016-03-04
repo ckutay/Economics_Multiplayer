@@ -102,8 +102,9 @@ public class ParticipantController :NetworkBehaviour
 			//relativePos.y=transform.position.y;
 				relrotation = Quaternion.LookRotation (relativePos);
 				transform.rotation = Quaternion.Lerp (transform.rotation, relrotation, .5f);	
-		
-				if (Vector3.Distance (transform.position, target) < .5f) {
+				Debug.LogWarning (walkTarget);
+				Debug.LogWarning (Vector3.Distance (transform.position, target));
+				if (Vector3.Distance (transform.position, target) < 1f) {
 					//move between two effectors, first beside seat, next in front.
 					//find target for sit
 					if (walkTarget == null)
@@ -123,9 +124,18 @@ public class ParticipantController :NetworkBehaviour
 				animator.SetBool ("Sit", true);
 				animator.SetFloat ("Speed", 0);
 			//FIXME
-				Vector3 sitTargetV=sitTarget.transform.position;
-				sitTargetV.y=transform.position.y;
-				transform.position=sitTargetV;
+				Vector3 sitTargetV = sitTarget.transform.position;
+				sitTargetV.y = transform.position.y;
+				transform.position = sitTargetV;
+
+				relativePos = sitTargetV - transform.position;
+				relativePos.y = transform.position.y;
+				relrotation = Quaternion.LookRotation (relativePos);
+				transform.rotation = Quaternion.Lerp (transform.rotation, relrotation, .5f);
+				//rotation
+			
+
+				transform.LookAt (box.transform);
 				mode = modes.sitting;
 	
 
@@ -135,26 +145,27 @@ public class ParticipantController :NetworkBehaviour
 
 				if (rearBone != null & rearTarget != null) {
 
+					relativePos = rearTarget.transform.position - rearBone.transform.position;
+					//relativePos.y = transform.position.y;
 
-				
-					relativePos =   rearBone.transform.position -rearTarget.transform.position;
-					relativePos.y = transform.position.y;
+					transform.position += relativePos;
+					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < .5f) {
 
-					//transform.position += relativePos;
-					rearBone.transform.position = Vector3.Lerp (rearBone.transform.position, relativePos, .5f);
-
-					//Debug.Log(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
-					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < .4f) {
-						transform.LookAt(box.transform);
-						
+						animator.SetBool ("Sit", true);
+						animator.SetFloat ("Speed", 0);
 						//go to experiment controller
 						mode = modes.run;
+
 						//setup up experiment controller once
 						ExperimentController exp_cont = null;
 						//error if no coinmanager
 						if (box != null) {
 							coinManager = box.GetComponent<CoinManager> ();
 						} else {
+
+							//move to exact place
+							rearBone.transform.position =rearTarget.transform.position;
+							transform.LookAt(box.transform);
 							//enable ik
 							transform.GetComponent<IKBody> ().ikActive = true;
 						

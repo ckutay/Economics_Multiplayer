@@ -23,6 +23,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	public int participant;
 	public int participant_id;
 	GameObject tokenBox;
+	int boxCount;
 	bool isHost;
 	Text canvasText;
 	Canvas canvasgo;
@@ -94,6 +95,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				canvasText = canvasgo.transform.Find ("Text").gameObject.GetComponent<Text> ();
 			}
 			try {
+				boxCount=gameManager.boxCount;
 				tokenBox = gameManager.tokenBoxes [gameManager.boxCount];
 			} catch (Exception e) {
 				if (gameManager.boxCount > 0) {
@@ -113,11 +115,11 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				participantController.box = tokenBox;
 				participantController.canvasText = canvasText;
 				participantController.coinManager = tokenBox.GetComponent<CoinManager> ();
-		
+				participantController.coinManager.boxCount = boxCount;
 				expController = tokenBox.GetComponent<ExperimentController> ();
 				expController.participantController = participantController;
 				expController.canvasText = canvasText;
-
+				expController.boxCount = boxCount;
 				//setup authority over coinbox
 				//expController.player = gameObject;
 

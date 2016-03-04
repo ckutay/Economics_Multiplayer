@@ -49,6 +49,7 @@ public class ExperimentController : NetworkBehaviour
 	public GameManager gameManager;
 	public CoinManager coinManager;
 	public GameObject box;
+	public int boxCount;
 	public Text canvasText;
 	string returnString;
 	string message = "";
@@ -74,6 +75,7 @@ public class ExperimentController : NetworkBehaviour
 
 		//reduce error in scene setup
 		gameManager = GameObject.Find ("NetworkManager").GetComponent<GameManager> ();
+		boxCount = gameManager.boxCount;
 		textFileReader = GameObject.Find ("NetworkManager").GetComponent<TextFileReader> ();
 		button=transform.Find("Capsule");
 
@@ -193,7 +195,7 @@ public class ExperimentController : NetworkBehaviour
 				try {
 
 					if (_isLocalPlayer) {
-						GameManager.singleton.Cmd_change_currentStage (this, stage_number, mode);
+						GameManager.singleton.Cmd_change_currentStage ( stage_number, mode);
 					}
 				} catch {
 				}

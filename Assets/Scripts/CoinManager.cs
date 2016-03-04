@@ -20,6 +20,7 @@ public class CoinManager : NetworkBehaviour
 	[HideInInspector][SyncVar]public bool result;
 	public bool isFinished=false;
 	public GameObject player;
+	public int boxCount;
 
 	// Use this for initialization
 	void Start ()
@@ -31,6 +32,7 @@ public class CoinManager : NetworkBehaviour
 		}
 		currentCoins = 0;
 
+			boxCount =GameObject.Find ("NetworkManager").GetComponent<GameManager> ().boxCount;
 	}
 	
 	// Update is called once per frame
@@ -105,7 +107,7 @@ public class CoinManager : NetworkBehaviour
 			//send to server
 
 			
-		if(_isLocalPlayer)GameManager.singleton.Cmd_Update_Coins(this, currentCoins);
+		if(_isLocalPlayer)GameManager.singleton.Cmd_Update_Coins(boxCount, currentCoins);
 
 		
 
@@ -159,8 +161,9 @@ public class CoinManager : NetworkBehaviour
 
 
 
-	void Change_currentCoins (int _currentCoins)
+	void Change_currentCoins (int _currentCoins, bool _result)
 	{
+		result = _result;
 		
 		currentCoins = _currentCoins;
 	
