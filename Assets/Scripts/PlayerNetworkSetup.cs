@@ -97,8 +97,9 @@ public class PlayerNetworkSetup : NetworkBehaviour
 			}
 			try {
 				boxCount=gameManager.boxCount;
-				//boxCount=1;
-				tokenBox = gameManager.tokenBoxes [boxCount];
+				///boxCount=1;
+				tokenBox= gameManager.tokenBoxes [boxCount];
+
 			} catch (Exception e) {
 				if (gameManager.boxCount > 0) {
 					if (canvasgo)
@@ -152,11 +153,10 @@ public class PlayerNetworkSetup : NetworkBehaviour
 			
 			
 				transform.rotation = spawnPoint.rotation;
-				//gie authority to player over experiment box
-				Debug.LogWarning("Giving Authority");
-				Cmd_Get_Authority ( boxCount);
+
 
 				expController._isLocalPlayer = true;
+				tokenBox.GetComponent<CoinManager> ().player = this;
 				tokenBox.GetComponent<CoinManager> ()._isLocalPlayer = true;
 				tokenBox.GetComponent<CoinManager> ().SetToClear ();
 	
@@ -188,13 +188,16 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	//Called from playernetworksetup for assigning cotnrol of token box
 	public void Cmd_Get_Authority (int _boxCount)
 	{
-
-		NetworkIdentity nwI = gameManager.tokenBoxes[_boxCount].gameObject.AddComponent<NetworkIdentity> ();
+		GameObject box = gameManager.tokenBoxes [_boxCount].gameObject;
+	
+		NetworkIdentity nwI = tokenBox.AddComponent<NetworkIdentity> ();
 		nwI.localPlayerAuthority = true;
-		Debug.LogWarning (gameManager.tokenBoxes [_boxCount].gameObject);
-		Debug.LogWarning(connectionToClient);
-		NetworkServer.SpawnWithClientAuthority ( gameManager.tokenBoxes[_boxCount].gameObject, connectionToClient);
-
+		NetworkManager networkManager= GameObject.Find ("NetworkManager").GetComponent<NetworkManager> ();
+	
+		GameObject newBox = Instantiate (box);
+	
+		NetworkServer.SpawnWithClientAuthority ( newBox, connectionToClient);
+		 gameManager.tokenBoxes [boxCount]=newBox;
 	}
 
 	//from AddPlayer when instatiate character
@@ -206,6 +209,58 @@ public class PlayerNetworkSetup : NetworkBehaviour
 		setup ();
 		}
 	}
+	//called form coin manager as has no authority
+	[Command]
+	public void Cmd_Update_Coins(int _boxCount, int _currentCoins){
 
+		gameManager.tokenBoxes[_boxCount].GetComponent<CoinManager>().currentCoins = _currentCoins;
+	}
+	//caleld form experiment controller to send update messages from ZTree
+	[Command]
+	public void Cmd_broadcast (string message)
+	{
+		//send message to all players - use synvar on script on Canvas??
+		GameObject[] gos;
+		gos = GameObject.FindGameObjectsWithTag ("Player");
+		//update as player enters
+		foreach (GameObject go in gos) {
+
+			try {
+				Transform tran = go.transform.Find ("FPCharacterCam").Find ("Canvas");
+
+				tran = tran.Find ("Text");
+
+				if (tran != null)
+					tran.gameObject.GetComponent<Text> ().text = message;
+
+			} catch (Exception e) {
+
+				Debug.LogWarning (e);
+			}
+
+		}
+
+
+	}
+	//called form expereiment controlle r to update stage from Ztree
+	[Command]
+	public void Cmd_change_currentStage ( int _stage_number, ExperimentController.runState _mode)
+	{
+
+		foreach (GameObject  exp_conts in gameManager.tokenBoxes) {
+			ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
+			exp_cont.stage_number = _stage_number;
+
+			exp_cont.mode = _mode;
+
+		}
+
+	}
+	[Command]
+	public void Cmd_ikActive(int _boxCount, bool _ikActive){
+
+		gameManager.tokenBoxes[_boxCount].GetComponent<ExperimentController>().ikActive = _ikActive;
+
+	}
 
 }

@@ -19,9 +19,9 @@ public class CoinManager : NetworkBehaviour
 	public int maxCoins = 19;
 	[HideInInspector][SyncVar]public bool result;
 	public bool isFinished=false;
-	public GameObject player;
+	public PlayerNetworkSetup player=null;
 	public int boxCount;
-
+	GameManager gameManager;
 	// Use this for initialization
 	void Start ()
 	{
@@ -31,7 +31,7 @@ public class CoinManager : NetworkBehaviour
 			resource [i].SetActive (true);
 		}
 		currentCoins = 0;
-
+		gameManager = GameObject.Find ("NetworkManager").GetComponent<GameManager> ();
 			boxCount =GameObject.Find ("NetworkManager").GetComponent<GameManager> ().boxCount;
 	}
 	
@@ -107,7 +107,7 @@ public class CoinManager : NetworkBehaviour
 			//send to server
 
 			
-		if(_isLocalPlayer)GameManager.singleton.Cmd_Update_Coins(boxCount, currentCoins);
+		if(_isLocalPlayer)player.Cmd_Update_Coins(boxCount, currentCoins);
 
 		
 
@@ -138,10 +138,7 @@ public class CoinManager : NetworkBehaviour
 		currentCoins=_currentCoins;
 		}
 
-	void Cmd_updateCoins(int _currentCoins){
-		currentCoins=_currentCoins;
 
-	}
 
 	void Rpc_ChangeCoins (int arrayValue, bool _isAdd)
 	{

@@ -49,8 +49,9 @@ public class TextFileReader :MonoBehaviour
 		}
 
 		}
-		//Debug.Log(IP_Address);
+	
 		file.Close ();
+
 
 	}
 

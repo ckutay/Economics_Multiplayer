@@ -29,7 +29,7 @@ public class GameManager : NetworkBehaviour {
 		networkManager = GetComponent<NetworkManager> ();
 
 		if (playerPrefabs.ToList()!=networkManager.spawnPrefabs)
-			Debug.LogError("The player prefabs on GameManager must be included in the spawnPrefabs in NetworkManager, including Experimenter prefab");
+			Debug.LogError("The player prefabs on GameManager must be included in the spawnPrefabs in NetworkManager");
 
 		//setup is is -1 when assigned expereimenter
 		boxCount = -2;
@@ -60,7 +60,7 @@ public class GameManager : NetworkBehaviour {
 	// called on the server by Addplayer
 	public void ServerRespawn(AddPlayer addPlayer, int boxCount)
 	{
-		
+		///boxCount = 1;
 		//zero is expereimenter prefab
 		GameObject playerPrefab = playerPrefabs[boxCount];
 		Destroy (addPlayer.gameObject);
@@ -75,52 +75,6 @@ public class GameManager : NetworkBehaviour {
 
 
 
-	//called form coin manager as has no authority
-	[Command]
-	public void Cmd_Update_Coins(int _boxCount, int _currentCoins){
 
-		tokenBoxes[_boxCount].GetComponent<CoinManager>().currentCoins = _currentCoins;
-	}
-	//caleld form experiment controller to send update messages from ZTree
-	[Command]
-	public void Cmd_broadcast (string message)
-	{
-		//send message to all players - use synvar on script on Canvas??
-		GameObject[] gos;
-		gos = GameObject.FindGameObjectsWithTag ("Player");
-		//update as player enters
-		foreach (GameObject go in gos) {
-
-			try {
-				Transform tran = go.transform.Find ("FPCharacterCam").Find ("Canvas");
-
-				tran = tran.Find ("Text");
-
-				if (tran != null)
-					tran.gameObject.GetComponent<Text> ().text = message;
-
-			} catch (Exception e) {
-
-				Debug.LogWarning (e);
-			}
-
-		}
-
-
-	}
-	//called form expereiment controlle r to update stage from Ztree
-	[Command]
-	public void Cmd_change_currentStage ( int _stage_number, ExperimentController.runState _mode)
-	{
-
-		foreach (GameObject  exp_conts in tokenBoxes) {
-			ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
-			exp_cont.stage_number = _stage_number;
-
-			exp_cont.mode = _mode;
-
-		}
-
-	}
 
 }

@@ -21,13 +21,14 @@ public class ExperimentController : NetworkBehaviour
 	public Transform lefthandEffector;
 	public bool enter;
 	public Transform button;
-
+	[SyncVar]public bool ikActive;
 
 	public float transPos;
 
 	bool urlReturn;
 	string url;
-
+	int resultCoins;
+	int effortCoins;
 	public enum runState
 	{
 		start,
@@ -61,9 +62,10 @@ public class ExperimentController : NetworkBehaviour
 	[SyncVar]public int stage_number = 0;
 	[SyncVar]public runState mode = runState.wait;
 	public ExperimentController[] tokenBoxes;
-
+	IKBody ikBody=null ;
 	//fixme
 	string result;
+	bool start;
 	// Use this for initialization
 	void Start ()
 	{
@@ -78,12 +80,16 @@ public class ExperimentController : NetworkBehaviour
 		boxCount = gameManager.boxCount;
 		textFileReader = GameObject.Find ("NetworkManager").GetComponent<TextFileReader> ();
 		button=transform.Find("Capsule");
+	
+		start = true;
 
 	}
 
 	void setupHost ()
 	{
+		
 
+			
 
 		if (isHost && tokenBoxes.Length == 0) {
 			List <ExperimentController> list = new List<ExperimentController> ();
@@ -92,15 +98,15 @@ public class ExperimentController : NetworkBehaviour
 				list.Add (box.GetComponent<ExperimentController> ());
 			}
 			tokenBoxes = list.ToArray ();
-		}
+			start = false;
 		//Debug.Log(gameManager);
-		
+		}
 	}
 
 	void Update ()
 	{
 		
-		
+
 		if (urlReturn) {
 			// url calls in rest of update do not work
 			if (isHost && _isLocalPlayer) {
@@ -110,14 +116,19 @@ public class ExperimentController : NetworkBehaviour
 			}
 
 			//not working in start unless set to active later  as no tokenbox- then not visible for collection tokenboxes FIXME
-	
-			//if (isHost)setupHost();
+			if(start)
+			setupHost();
 	
 
 			if (_isLocalPlayer) {
+				//set from the server syncvar
 
+				if (ikBody!=null & coinManager.player!=null)	ikBody.ikActive = ikActive;
+				else ikBody = coinManager.player.gameObject.GetComponent<IKBody> ();
+			
 				switch (mode) {
 				case runState.start:
+
 					coinManager.result = false;
 					canvasText.text = "Wait for others to join you";
 				//show this before starts
@@ -130,7 +141,10 @@ public class ExperimentController : NetworkBehaviour
 
 					break;
 				case runState.ask:
-					
+					//enable ik and sync
+					ikActive=true;
+					coinManager.player.Cmd_ikActive (boxCount,true);
+
 				//set up to change coins
 					coinManager._isLocalPlayer = true;
 
@@ -145,7 +159,7 @@ public class ExperimentController : NetworkBehaviour
 					canvasText.text = message + " You have selected " + coinManager.currentCoins + " coins";
 					if (coinManager.isFinished & _isLocalPlayer) {
 						//cannot enter anymore
-
+						effortCoins = coinManager.currentCoins;
 						coinManager.isFinished = false;
 					
 						//send in result to ZTree
@@ -162,6 +176,7 @@ public class ExperimentController : NetworkBehaviour
 					break;
 
 				case runState.answer:
+					
 			//when get response from team input, display it - FIXME
 					coinManager.result = true;
 				//force go to next stage?
@@ -171,19 +186,22 @@ public class ExperimentController : NetworkBehaviour
 					url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + (stage_number - 1) + "&round_id=1&name=Result&participant_id=" + participant_id;
 					string find = "Results";
 					callServer (url, find, "", mode);
+					find = "";
+					ikActive = false;
+					coinManager.player.Cmd_ikActive (boxCount, false);
 
-
-				
 					break;
 				case runState.end:
-					canvasText.text = message + ((coinManager.maxCoins + 1 - coinManager.currentCoins).ToString ());
+
+					if (message.Equals(""))canvasText.text = message + (( resultCoins).ToString ());
 					message = null;
 					isHost = false;
 					gameManager.boxCount = -1;
 
 		
 			//fix me
-		
+
+				
 
 					break;
 				}
@@ -195,7 +213,7 @@ public class ExperimentController : NetworkBehaviour
 				try {
 
 					if (_isLocalPlayer) {
-						GameManager.singleton.Cmd_change_currentStage ( stage_number, mode);
+						coinManager.player.Cmd_change_currentStage ( stage_number, mode);
 					}
 				} catch {
 				}
@@ -208,7 +226,7 @@ public class ExperimentController : NetworkBehaviour
 	void updateMove ()
 	{
 		if (isHost & message != null)
-			GameManager.singleton.Cmd_broadcast ( message);
+			coinManager.player.Cmd_broadcast ( message);
 		if (isHost & urlReturn) {
 			string url;
 
@@ -303,9 +321,11 @@ public class ExperimentController : NetworkBehaviour
 
 						//FIXME
 						if (returnFloat > 0 && _mode == runState.answer) {
-
-
+							
+							resultCoins = coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
 							coinManager.currentCoins -= (int)returnFloat;
+							Debug.Log (coinManager.currentCoins);
+						
 							//display results - no entered coins
 							coinManager.result = true;
 							canvasText.text = message + returnFloat.ToString ();
@@ -320,6 +340,7 @@ public class ExperimentController : NetworkBehaviour
 		
 							yield return StartCoroutine (WaitForSeconds (2f));
 							urlReturn = true;
+
 						}
 							
 						yield return true;

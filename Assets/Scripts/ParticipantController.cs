@@ -141,35 +141,37 @@ public class ParticipantController :NetworkBehaviour
 					relativePos =   rearBone.transform.position -rearTarget.transform.position;
 					relativePos.y = transform.position.y;
 
+
 					//transform.position += relativePos;
 					rearBone.transform.position = Vector3.Lerp (rearBone.transform.position, relativePos, .5f);
 
 					//Debug.Log(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
-					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < .5f) {
-						transform.LookAt(box.transform);
+					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < 5f) {
+						rearBone.transform.position= sitTarget.transform.position;
+						//transform.LookAt(box.transform);
 						
 						//go to experiment controller
 						mode = modes.run;
 						//setup up experiment controller once
 						ExperimentController exp_cont = null;
 						//error if no coinmanager
-						if (box != null) {
+
+						if (coinManager == null) {
 							coinManager = box.GetComponent<CoinManager> ();
-						} else {
-							//enable ik
-							transform.GetComponent<IKBody> ().ikActive = true;
-						
+						}
+							
+
 							exp_cont = coinManager.GetComponent<ExperimentController> ();
 							//start experiemnt
-							exp_cont.mode = ExperimentController.runState.wait;
+							//exp_cont.mode = ExperimentController.runState.wait;
 							exp_cont.box = box;
 							//button = exp_cont.button;
 							//link to canvas - done in playernetwork setup
 							//	exp_cont.canvasText=canvasText;
 
-						}
-			
+						
 					}
+
 		
 				}
 
@@ -181,7 +183,6 @@ public class ParticipantController :NetworkBehaviour
 			}
 		}
 	}
-
 
 
 }

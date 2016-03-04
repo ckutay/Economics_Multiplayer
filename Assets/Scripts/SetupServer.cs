@@ -18,12 +18,13 @@ public class SetupServer : NetworkBehaviour
 	public int experiment_id;
 	//get from server
 	public int max_participants;
-	public int participant=0;
+	public int participant = 0;
 	public int participant_id;
 	public string Host_IP;
 	public int Port;
 	bool server = true;
 	bool update = true;
+	bool setupServer=false;
 	//is this the first running system - otherwise do not need to setup server
 	bool isHost;
 
@@ -39,7 +40,7 @@ public class SetupServer : NetworkBehaviour
 		DontDestroyOnLoad (transform.gameObject);
 		textFileReader = GetComponent<TextFileReader> ();
 		gameManager = GetComponent<GameManager> ();
-
+		Host_IP = null;
 	
 	}
 	
@@ -52,6 +53,7 @@ public class SetupServer : NetworkBehaviour
 		
 			experiment_id = textFileReader.experiment_id;
 			isHost = textFileReader.isHost;
+	
 			//set up for expereimenter as ishost
 			//GetComponent<NetworkManagerOverride> ().isHost = isHost;
 
@@ -63,19 +65,20 @@ public class SetupServer : NetworkBehaviour
 	void OnGUI ()
 	{
 
+	
 		//our own HUD
 		if (!NetworkClient.active && !NetworkServer.active) {
 
-
+		
 			//reset values on server to set this machine as hosting
 			//option only if set in textfile as host
 			if (isHost) {
 				if (GUILayout.Button ("Reset ZTree server for hosting from this machine")) {
 
 					find = "Host_IP";
-
+					//	Debug.Log (Network.player.ipAddress);
 					string url = "/experiments/setup?experiment_id=" + experiment_id + "&Host_IP=" + Network.player.ipAddress;
-					//StartCoroutine (FetchHost_IP (url, find, ""));
+					StartCoroutine (FetchHost_IP (url, find, ""));
 					findInt = "Port";
 					url = "/experiments/setup?experiment_id=" + experiment_id + "&Port=11000";
 					StartCoroutine (FetchHost_IP (url, "", findInt));
@@ -85,6 +88,7 @@ public class SetupServer : NetworkBehaviour
 					find = "Host_IP";
 					url = "/experiments/setup?experiment_id=" + experiment_id + "&Host_IP";
 					StartCoroutine (FetchHost_IP (url, find, ""));
+
 					find = "Port";
 					url = "/experiments/setup?experiment_id=" + experiment_id + "&Port";
 					StartCoroutine (FetchHost_IP (url, "", ""));
@@ -106,68 +110,79 @@ public class SetupServer : NetworkBehaviour
 				if (GUILayout.Button ("Start/Join Server")) { 
 					//set up your IP
 				
-					StartCoroutine(setupLink ());
+					StartCoroutine (setupLink ());
 				}
 
-			}else if (textFileReader.readHost != null) {
+			} else if (textFileReader.readHost != null) {
 				
 				server = false;
-				StartCoroutine(setupLink ());
+				StartCoroutine (setupLink ());
 			}
 			//auto start as client if textfilereader found isHost not true
 
 		}
 	}
+
 	IEnumerator WaitForSeconds (float num)
 	{
 
 		yield return new WaitForSeconds (num);
 
 	}
+
 	IEnumerator setupLink ()
 	{
-		
-		//find varibles for link
-		find = "Host_IP";
-		string url = "/experiments/setup?experiment_id=" + experiment_id + "&Host_IP";
+		string url;
+	
+		if (Host_IP == null |Port==0) {
+			//find varibles for link
+			find = "Host_IP";
+			url = "/experiments/setup?experiment_id=" + experiment_id + "&Host_IP";
 
-		yield return StartCoroutine (FetchHost_IP (url, find, ""));
+			yield return StartCoroutine (FetchHost_IP (url, find, ""));
 
-		findInt = "Port";
-		url = "/experiments/setup?experiment_id=" + experiment_id + "&Port";
-		yield return StartCoroutine (FetchHost_IP (url, "", findInt));
+			findInt = "Port";
+			url = "/experiments/setup?experiment_id=" + experiment_id + "&Port";
+			yield return StartCoroutine (FetchHost_IP (url, "", findInt));
 	
 
-		findInt = "max_participants";
-		url = "/experiments/setup?experiment_id=" + experiment_id + "&max_participants";
-		yield return StartCoroutine (FetchHost_IP (url, "", findInt));
-		findInt="";
-
-
-		//now can set up
-		networkManager.networkAddress = Host_IP;
-		networkManager.networkPort = Port;
-		//can start after set up
-		find="participant";
-		if (server) {
-			//different comment for participant = experimenters as do not add to ecperiment listmax
-		
-			 url = textFileReader.IP_Address + "/experiments/participant?participant=0&experiment_id=" + textFileReader.experiment_id;
-			//Debug.Log(textFileReader.IP_Address+"/experiments/participant?participant=1&experiment_id="+textFileReader.experiment_id);
-			yield return StartCoroutine (FetchParticipant (url));
-			networkManager.StartHost ();
-
-
-		} else {
-
-
-			url = textFileReader.IP_Address + "/experiments/participant?participant=1&experiment_id=" + textFileReader.experiment_id;
-			//Debug.Log(textFileReader.IP_Address+"/experiments/participant?participant=1&experiment_id="+textFileReader.experiment_id);
-			yield return StartCoroutine (FetchParticipant (url));
-			networkManager.StartClient ();
+			findInt = "max_participants";
+			url = "/experiments/setup?experiment_id=" + experiment_id + "&max_participants";
+			yield return StartCoroutine (FetchHost_IP (url, "", findInt));
+			findInt = "";
 		}
+	
+		else if(!setupServer) {
+				//now can set up
+			//Debug.Log(Host_IP);
+				networkManager.networkAddress = Host_IP;
+				networkManager.networkPort = Port;
+				//can start after set up
+				find = "participant";
+			setupServer = true;
+				if (server) {
+					//different comment for participant = experimenters as do not add to ecperiment listmax
+		
+					url = textFileReader.IP_Address + "/experiments/participant?participant=0&experiment_id=" + textFileReader.experiment_id;
+					//Debug.Log(textFileReader.IP_Address+"/experiments/participant?participant=1&experiment_id="+textFileReader.experiment_id);
+				yield return StartCoroutine (FetchParticipant (url));
+					networkManager.StartHost ();
+				Debug.Log ("server");
 
-		//Debug.LogWarning(NetworkTransport.IsStarted);
+				} else {
+
+
+					url = textFileReader.IP_Address + "/experiments/participant?participant=1&experiment_id=" + textFileReader.experiment_id;
+					//Debug.Log(textFileReader.IP_Address+"/experiments/participant?participant=1&experiment_id="+textFileReader.experiment_id);
+					yield return StartCoroutine (FetchParticipant (url));
+			
+					NetworkClient nc = networkManager.StartClient ();
+				Debug.Log ("client");
+				}
+		
+				Debug.LogWarning(NetworkTransport.IsStarted);
+			update = false;
+		}
 	}
 
 
@@ -176,10 +191,11 @@ public class SetupServer : NetworkBehaviour
 		//display link info
 		GUILayout.Label ("IP: " + networkManager.networkAddress + " Port: " + networkManager.networkPort);  
 	}
+
 	IEnumerator FetchParticipant (string url)
 	{
 		//Debug.LogWarning(url);
-		yield return StartCoroutine (WaitForSeconds (.1f));
+		//yield return StartCoroutine (WaitForSeconds (.1f));
 		//simple function for participant call only
 		WWW www = new WWW (url);
 
@@ -199,7 +215,8 @@ public class SetupServer : NetworkBehaviour
 			
 				//setup as host
 
-			} else yield break;
+			} else
+				yield break;
 
 
 		} else {
@@ -214,12 +231,14 @@ public class SetupServer : NetworkBehaviour
 
 	IEnumerator FetchHost_IP (string url, string find, string findInt)
 	{
-		
+		//Debug.Log (Host_IP);
 		//get IP and Port numbers - slowly
 		yield return StartCoroutine (WaitForSeconds (.1f));
 	
 		WWW www = new WWW (IP_Address + url);
+	
 		yield return StartCoroutine (WaitForRequest (www));
+
 		// StringBuilder sb = new StringBuilder();
 		string result = www.text;
 		//Debug.Log (result);
