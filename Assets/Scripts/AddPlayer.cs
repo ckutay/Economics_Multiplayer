@@ -11,6 +11,7 @@ public class AddPlayer : NetworkBehaviour
 	public TextFileReader textFileReader;
 	GameManager gameManager;
 	NetworkManager networkManager;
+	CommonNetwork commonNetwork;
 	SetupServer setupServer;
 	[SerializeField] Camera FPCharacterCam;
 	[SerializeField] AudioListener audioListener;
@@ -21,13 +22,13 @@ public class AddPlayer : NetworkBehaviour
 
 	void Start ()
 	{
-		
+		commonNetwork=GameObject.Find ("NetworkManager").GetComponent<CommonNetwork> ();
 		gameManager = GameObject.Find ("NetworkManager").GetComponent<GameManager> ();
 		networkManager = GameObject.Find ("NetworkManager").GetComponent<NetworkManager> ();
 		setupServer=GameObject.Find ("NetworkManager").GetComponent<SetupServer>();
 		//Debug.LogWarning(NetworkTransport.IsStarted);
 		if (isLocalPlayer) {
-			if (gameManager.boxCount>setupServer.max_participants){
+			if (gameManager.boxCount>commonNetwork.max_participants){
 				FPCharacterCam.gameObject.SetActive ( true);
 				FPCharacterCam.enabled = true;
 				audioListener.enabled = true;

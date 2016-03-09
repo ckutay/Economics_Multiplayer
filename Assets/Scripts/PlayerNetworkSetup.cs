@@ -14,6 +14,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	[SerializeField] AudioListener audioListener;
 
 	GameManager gameManager;
+	CommonNetwork commonNetwork;
 	ParticipantController participantController;
 
 	public Transform spawnPoint;
@@ -35,6 +36,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	{
 		//have paricipant number from server  in setupServer
 		gameManager = GameObject.Find ("NetworkManager").GetComponent<GameManager> ();
+		commonNetwork = GameObject.Find ("NetworkManager").GetComponent<CommonNetwork> ();
 
 		setupServer = GameObject.Find ("NetworkManager").GetComponent<SetupServer> ();
 		textFileReader = GameObject.Find ("NetworkManager").GetComponent<TextFileReader> ();
@@ -66,9 +68,9 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				isHost = false;
 				Debug.LogWarning ("Getting host");
 			}
-			participant = setupServer.participant;
+			participant = commonNetwork.participant;
 
-			participant_id = setupServer.participant_id;
+			participant_id = commonNetwork.participant_id;
 
 			//random -FIXME
 			if (spawnPoint)
