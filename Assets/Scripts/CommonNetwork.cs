@@ -91,7 +91,7 @@ public class CommonNetwork : MonoBehaviour {
 	{
 		//Debug.Log (Host_IP);
 		//get IP and Port numbers - slowly
-		yield return StartCoroutine (WaitForSeconds (.1f));
+		yield return StartCoroutine (WaitForSeconds (.05f));
 
 		WWW www = new WWW ( IP_Address+url);
 

@@ -11,7 +11,7 @@ public class SetupServer : NetworkBehaviour
 
 	string find;
 	string findInt;
-	bool connected= false;
+	bool connected = false;
 
 
 	public string Host_IP;
@@ -33,11 +33,11 @@ public class SetupServer : NetworkBehaviour
 		networkManager = GetComponent<NetworkManager> ();
 		DontDestroyOnLoad (transform.gameObject);
 
-		commonNetwork=GetComponent<CommonNetwork>();
+		commonNetwork = GetComponent<CommonNetwork> ();
 		Host_IP = null;
 	
 	}
-	
+
 
 
 	void OnGUI ()
@@ -74,7 +74,7 @@ public class SetupServer : NetworkBehaviour
 					find = "results";
 					url = "/experiments/delete_results?experiment_id=" + commonNetwork.experiment_id + "&round_id=1";
 					StartCoroutine (commonNetwork.FetchHost_IP (url, "", ""));
-
+					Debug.LogWarning("Setup Ztree");
 
 				}
 
@@ -98,7 +98,8 @@ public class SetupServer : NetworkBehaviour
 			}
 			//auto start as client if textfilereader found isHost not true
 			//showServerInformation ();
-			if(nc!=null)Debug.LogWarning (nc.serverPort);
+			if (nc != null)
+				Debug.LogWarning (nc.serverPort);
 		}
 	}
 
@@ -108,7 +109,7 @@ public class SetupServer : NetworkBehaviour
 	{
 		string url;
 	
-		if (Host_IP == null |Port==0) {
+		if (Host_IP == null | Port == 0) {
 			//find varibles for link
 			find = "Host_IP";
 			url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Host_IP";
@@ -126,37 +127,35 @@ public class SetupServer : NetworkBehaviour
 			findInt = "";
 
 			//get results
-			Host_IP=commonNetwork.Host_IP;
-			Port=commonNetwork.Port;
-		}
-	
-		else if(!connected) {
-			connected=true;
-				//now can set up
+			Host_IP = commonNetwork.Host_IP;
+			Port = commonNetwork.Port;
+		} else if (!connected) {
+			connected = true;
+			//now can set up
 			//Debug.Log(Host_IP);
-				networkManager.networkAddress = Host_IP;
-				networkManager.networkPort = Port;
+			networkManager.networkAddress = Host_IP;
+			networkManager.networkPort = Port;
 			//Debug.LogWarning(networkManager.networkAddress+":"+networkManager.networkPort);
-				//can start after set up
-				find = "participant";
+			//can start after set up
+			find = "participant";
 		
-				if (server) {
-					//different comment for participant = experimenters as do not add to ecperiment listmax
+			if (server) {
+				//different comment for participant = experimenters as do not add to ecperiment listmax
 		
-				url =  "/experiments/participant?participant=0&experiment_id=" + commonNetwork.experiment_id;
-					yield return StartCoroutine (commonNetwork.FetchParticipant (url));
-					networkManager.StartHost ();
+				url = "/experiments/participant?participant=0&experiment_id=" + commonNetwork.experiment_id;
+				yield return StartCoroutine (commonNetwork.FetchParticipant (url));
+				networkManager.StartHost ();
 				Debug.Log ("server");
 
-				} else {
+			} else {
 
 
-				url =  "/experiments/participant?participant=1&experiment_id=" + commonNetwork.experiment_id;
+				url = "/experiments/participant?participant=1&experiment_id=" + commonNetwork.experiment_id;
 				yield return StartCoroutine (commonNetwork.FetchParticipant (url));
 			
-					 nc = networkManager.StartClient ();
+				nc = networkManager.StartClient ();
 
-				}
+			}
 
 		
 
