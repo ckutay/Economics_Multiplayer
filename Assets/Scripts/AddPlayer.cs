@@ -22,12 +22,15 @@ public class AddPlayer : NetworkBehaviour
 
 	void Start ()
 	{
-		commonNetwork=GameObject.Find ("NetworkManager").GetComponent<CommonNetwork> ();
+		
 		gameManager = GameObject.Find ("NetworkManager").GetComponent<GameManager> ();
 		networkManager = GameObject.Find ("NetworkManager").GetComponent<NetworkManager> ();
 		setupServer=GameObject.Find ("NetworkManager").GetComponent<SetupServer>();
+		commonNetwork=GameObject.Find ("NetworkManager").GetComponent<CommonNetwork>();
 		//Debug.LogWarning(NetworkTransport.IsStarted);
 		if (isLocalPlayer) {
+			//change for TESTING
+			gameManager.boxCount+=1;
 			if (gameManager.boxCount>commonNetwork.max_participants){
 				FPCharacterCam.gameObject.SetActive ( true);
 				FPCharacterCam.enabled = true;
@@ -40,8 +43,8 @@ public class AddPlayer : NetworkBehaviour
 					Text canvasText = canvasgo.transform.Find ("Text").gameObject.GetComponent<Text> ();
 					canvasText.text="You cannot join this game as the server is full";
 				}
-
-			}else if (gameManager.boxCount > -2) {
+			
+			}else if (gameManager.boxCount >-2) {
 				//if has received box count
 
 				//prefabs stored on GameManager but all registered on Newtwork Manager

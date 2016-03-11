@@ -58,7 +58,7 @@ public class SetupServer : NetworkBehaviour
 					string url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Host_IP=" + Network.player.ipAddress;
 					StartCoroutine (commonNetwork.FetchHost_IP (url, find, ""));
 					findInt = "Port";
-					url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Port=11000";
+					url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Port=8009";
 					StartCoroutine (commonNetwork.FetchHost_IP (url, "", findInt));
 					//reset participants
 					url = "/experiments/participant?experiment_id=" + commonNetwork.experiment_id + "&participant=-1";
@@ -92,14 +92,13 @@ public class SetupServer : NetworkBehaviour
 				}
 
 			} else if (!commonNetwork.update) {
-				
+				//auto start as client if textfilereader found isHost not true
+				//showServerInformation ();
 				server = false;
 				StartCoroutine (setupLink ());
 			}
-			//auto start as client if textfilereader found isHost not true
-			//showServerInformation ();
-			if (nc != null)
-				Debug.LogWarning (nc.serverPort);
+		
+		
 		}
 	}
 
@@ -129,7 +128,8 @@ public class SetupServer : NetworkBehaviour
 			//get results
 			Host_IP = commonNetwork.Host_IP;
 			Port = commonNetwork.Port;
-		} else if (!connected) {
+		} 
+		if (!connected) {
 			connected = true;
 			//now can set up
 			//Debug.Log(Host_IP);
@@ -141,8 +141,8 @@ public class SetupServer : NetworkBehaviour
 		
 			if (server) {
 				//different comment for participant = experimenters as do not add to ecperiment listmax
-		
-				url = "/experiments/participant?participant=0&experiment_id=" + commonNetwork.experiment_id;
+		//fix for TESTING
+				url = "/experiments/participant?participant=1&experiment_id=" + commonNetwork.experiment_id;
 				yield return StartCoroutine (commonNetwork.FetchParticipant (url));
 				networkManager.StartHost ();
 				Debug.Log ("server");

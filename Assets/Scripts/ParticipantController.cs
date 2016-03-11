@@ -11,7 +11,7 @@ public class ParticipantController :NetworkBehaviour
 
 	public int participant;
 	public int participant_id;
-	float transPos;
+	public float transPos;
 
 	public enum modes
 	{
@@ -108,6 +108,7 @@ public class ParticipantController :NetworkBehaviour
 					//find target for sit
 					if (walkTarget == null)
 						mode = modes.sit;
+					
 					target = sitTarget.transform.position;
 					walkTarget = null;
 
@@ -120,16 +121,18 @@ public class ParticipantController :NetworkBehaviour
 				canvasText.text = "You will contribute effort in the form of coins";
 
 			// use box target to back of chair for walk direction
-				animator.SetBool ("Sit", true);
-				animator.SetFloat ("Speed", 0);
+
 			//FIXME
 				Vector3 sitTargetV=sitTarget.transform.position;
-				sitTargetV.y=transform.position.y;
+
+				//zero savced form start
+				sitTargetV.y=transPos;
 				transform.position=sitTargetV;
 				transform.rotation = sitTarget.transform.rotation;
 				mode = modes.sitting;
 	
-
+				animator.SetBool ("Sit", true);
+				animator.SetFloat ("Speed", 0);
 				break;
 			case modes.sitting:
 				
@@ -139,7 +142,7 @@ public class ParticipantController :NetworkBehaviour
 
 				
 					relativePos =   rearBone.transform.position -rearTarget.transform.position;
-					relativePos.y = transform.position.y;
+					relativePos.y = 0f;
 
 
 					//transform.position += relativePos;
@@ -147,7 +150,7 @@ public class ParticipantController :NetworkBehaviour
 
 					//Debug.Log(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
 					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < 5f) {
-						rearBone.transform.position= sitTarget.transform.position;
+						rearBone.transform.position= rearTarget.transform.position;
 						//transform.LookAt(box.transform);
 						
 						//go to experiment controller
