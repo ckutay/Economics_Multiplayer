@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 using UnityEngine.VR;
@@ -162,37 +162,40 @@ public class ExperimentController : NetworkBehaviour
 					break;
 				case runState.ask:
 					//enable ik and sync
-					ikActive = true;
+					//set if playercontroller is sitting
+					//ikActive = true;
 					//send to server then SyncVar
 					coinManager.player.Cmd_ikActive (boxCount, true);
 
 					//set up to change coins
 					coinManager._isLocalPlayer = true;
-							
-					Vector3 target = button.transform.position;
-					lefthandEffector.rotation = coinManager.gameObject.transform.parent.rotation * Quaternion.Euler (-18f, -15f, 40f);
-					//need to add rotation of chair
+					if (ikActive) {
+						Vector3 target = button.transform.position + new Vector3 (0, .5f, 0);
+						//compendate for rotation
+						lefthandEffector.rotation = coinManager.gameObject.transform.parent.rotation * Quaternion.Euler (-18f, -15f, 40f);
+						//need to add rotation of chair
 
-					lefthandEffector.transform.position = target;
-					button.GetComponent<ClearButton> ()._isLocalPlayer = true;
-					//send coin number	
-					canvasText.text = message + " You have selected " + coinManager.currentCoins + " coins";
-					if (coinManager.isFinished & _isLocalPlayer) {
-						//cannot enter anymore
-						effortCoins = coinManager.currentCoins;
-						button.GetComponent<ClearButton> ()._isLocalPlayer = false;
-						resultStage=stage_number;
-						//send in result to ZTree
-						canvasText.text = "Wait for others to finish";
-						url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + stage_number + "&participant_id=" + participant_id + "&round_id=1&name=CoinEffort&value=" + coinManager.currentCoins;
-						StartCoroutine (FetchStage (url, "", "", mode));
-						//not playing anymore
-						ikActive = false;
-						coinManager.player.Cmd_ikActive (boxCount, false);
-						url = "";
-						mode = runState.wait;
-						//cannot use button
-						button.GetComponent<ClearButton>().SetToClear (false);
+						lefthandEffector.transform.position = target;
+						button.GetComponent<ClearButton> ()._isLocalPlayer = true;
+						//send coin number	
+						canvasText.text = message + " You have selected " + coinManager.currentCoins + " coins";
+						if (coinManager.isFinished & _isLocalPlayer) {
+							//cannot enter anymore
+							effortCoins = coinManager.currentCoins;
+							button.GetComponent<ClearButton> ()._isLocalPlayer = false;
+							resultStage = stage_number;
+							//send in result to ZTree
+							canvasText.text = "Wait for others to finish";
+							url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + stage_number + "&participant_id=" + participant_id + "&round_id=1&name=CoinEffort&value=" + coinManager.currentCoins;
+							StartCoroutine (FetchStage (url, "", "", mode));
+							//not playing anymore
+							ikActive = false;
+							coinManager.player.Cmd_ikActive (boxCount, false);
+							url = "";
+							mode = runState.wait;
+							//cannot use button
+							button.GetComponent<ClearButton> ().SetToClear (false);
+						}
 					}
 
 					break;
@@ -217,7 +220,7 @@ public class ExperimentController : NetworkBehaviour
 
 					//resultCoins = -1;
 					if ( !resultMessage.Equals ("")) {
-						canvasText.text = resultMessage ;
+						canvasText.text = resultMessage+ resultCoins.ToString() ;
 						//stop overwrite
 						message = "";
 						resultMessage = "";
@@ -383,7 +386,8 @@ public class ExperimentController : NetworkBehaviour
 
 							//FIXME
 							if (returnFloat > 0 && !message.Equals ("")) {
-								//set to display result only
+								//set to display result only - return then total
+                                //store for a while then display total
 								resultCoins =	coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
 								coinManager.result = true;
 						
@@ -400,14 +404,15 @@ public class ExperimentController : NetworkBehaviour
 								message = "";
 								//delay display of final message
 
-								yield return StartCoroutine (WaitForSeconds (.5f));
+								yield return StartCoroutine (WaitForSeconds (1f));
 							//broadcast new message
+                                Debug.Log(resultCoins);
 
 								resultCoins =	coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
 								coinManager.player.Cmd_Set_Text (boxCount, message, resultMessage + resultCoins.ToString ());
 								//wait before get result and update message
 								if ( !resultMessage.Equals ("")) {
-									canvasText.text = resultMessage ;
+									canvasText.text = resultMessage+ resultCoins.ToString() ;
 									//stop overwrite
 									message = "";
 									resultMessage = "";
