@@ -30,7 +30,7 @@ public class AddPlayer : NetworkBehaviour
 		//Debug.LogWarning(NetworkTransport.IsStarted);
 		if (isLocalPlayer) {
 			//change for TESTING
-			gameManager.boxCount+=1;
+			//gameManager.boxCount+=1;
 			if (gameManager.boxCount>commonNetwork.max_participants){
 				FPCharacterCam.gameObject.SetActive ( true);
 				FPCharacterCam.enabled = true;
