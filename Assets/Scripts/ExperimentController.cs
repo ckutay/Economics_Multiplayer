@@ -170,8 +170,9 @@ public class ExperimentController : NetworkBehaviour
 						//send in result to ZTree
 						canvasText.text = "Wait for others to finish";
 						url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + stage_number + "&participant_id=" + participant_id + "&round_id=1&name=CoinEffort&value=" + coinManager.currentCoins;
-			
-						callServer (url, "", "", mode);
+						StartCoroutine (FetchStage (url, "","", mode));
+					
+
 						url = "";
 						mode = runState.wait;
 						
@@ -181,15 +182,17 @@ public class ExperimentController : NetworkBehaviour
 					break;
 
 				case runState.answer:
-		
+					//get result for previous stage for each participant
 					url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + (stage_number - 1) + "&round_id=1&name=Result&participant_id=" + participant_id;
-					string find = "Results";
-					callServer (url, find, "", mode);
+
+					StartCoroutine (FetchStage (url, "Results", "", mode));
+					url = "";
+
 				
 			
-					//get result for previous stage for each participant
+				
 
-					find = "";
+				
 					ikActive = false;
 					coinManager.player.Cmd_ikActive (boxCount, false);
 
@@ -197,15 +200,14 @@ public class ExperimentController : NetworkBehaviour
 				case runState.end:
 					//get last message
 					//wait before get result and update message
-					if (resultCoins >= 0)
-					if (!message.Equals (""))
+					if (resultCoins >= 0 & !message.Equals (""))
 						StartCoroutine (resultMessage (message + resultCoins.ToString ()));
-					message = "";
+					
 					resultCoins = -1;
 
 				
 					//no more mesages sent
-					Debug.Log("End State");
+				
 					participantController.mode = ParticipantController.modes.stand;
 					//gameManager.boxCount = -1;
 
@@ -216,7 +218,7 @@ public class ExperimentController : NetworkBehaviour
 
 					break;
 				}
-
+				//Debug.LogWarning (message);
 			}
 
 			//works when authority given during assigning box to player
@@ -231,7 +233,8 @@ public class ExperimentController : NetworkBehaviour
 		//make sure see return message before final result
 		yield return StartCoroutine (WaitForSeconds (.1f));
 		canvasText.text = _message;
-
+		//reset in class
+		message = "";
 
 	}
 	void updateMove ()
@@ -240,7 +243,7 @@ public class ExperimentController : NetworkBehaviour
 		int _stage_number = stage_number;
 	
 		string _message = message;
-		
+	
 		if (isHost & urlReturn) {
 			string url;
 
@@ -249,7 +252,9 @@ public class ExperimentController : NetworkBehaviour
 				
 				url = textFileReader.IP_Address + "/experiments/stages?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + stage_number + "&round_id=1";
 				//Debug.Log (url);
-				callServer (url, "type_stage", "stage_number", mode);
+
+				StartCoroutine (FetchStage (url, "type_stage", "stage_number", mode));
+				url = "";
 
 				//move on to next one
 				if (returnInt > 0)
@@ -283,8 +288,8 @@ public class ExperimentController : NetworkBehaviour
 
 					if (_stage_number!=stage_number){
 						coinManager.player.Cmd_change_currentStage ( stage_number, mode);
-					Debug.LogWarning(stage_number);
-					Debug.LogWarning(mode);
+				//	Debug.LogWarning(stage_number);
+				//	Debug.LogWarning(mode);
 					}
 				} catch {
 				}
@@ -295,32 +300,22 @@ public class ExperimentController : NetworkBehaviour
 		if (isHost & message != null & message != _message) {
 
 			coinManager.player.Cmd_broadcast (message);
-			Debug.LogWarning (message);
+
 		}
 	}
 
 
 
-	void callServer (string url, string find, string findInt, runState mode)
-	{
 
-		StartCoroutine (FetchWWW (url, find, findInt, mode));
-
-
-	}
-
-
-
-	IEnumerator FetchWWW (string url, string find, string findInt, runState _mode)
+	IEnumerator FetchStage (string _url, string find, string findInt, runState _mode)
 	{
 		
 		urlReturn = false;
 		//Debug.Log (url);
 
 		yield return StartCoroutine (WaitForSeconds (.1f));
-		WWW www = new WWW (url);
-		url = "";
-
+		WWW www = new WWW (_url);
+	
 		yield return StartCoroutine (WaitForRequest (www));
 		//go to next step when done
 		urlReturn = true;
@@ -330,6 +325,7 @@ public class ExperimentController : NetworkBehaviour
 			
 		if (node != null) {
 			try {
+			//get stage message
 				message = node ["message"];
 			} catch {
 				//message = null;
@@ -357,6 +353,7 @@ public class ExperimentController : NetworkBehaviour
 						
 							coinManager.currentCoins -= (int)returnFloat;
 							resultCoins=	coinManager.maxCoins + 1 - effortCoins + coinManager.currentCoins;
+						message += resultCoins.ToString ();
 							Debug.Log (coinManager.currentCoins);
 						
 							//display results - no entered coins show anymore - fixit

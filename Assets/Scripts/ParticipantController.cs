@@ -129,14 +129,14 @@ public class ParticipantController :NetworkBehaviour
 				canvasText.text = "You will contribute effort in the form of coins";
 
 			// use box target to back of chair for walk direction
-
+				Vector3 sitTargetV=sitTarget.transform.position; 
 			//FIXME set standing at sittarget position
 				if (sitTarget != null) {
-					Vector3 sitTargetV = sitTarget.transform.position;
+					 sitTargetV = sitTarget.transform.position;
 
 					//zero savced form start
 					sitTargetV.y = transPos;
-					transform.position = sitTarget.transform.position;
+					transform.position = sitTargetV;
 					transform.rotation = sitTarget.transform.rotation;
 				}
 				if (rearBone != null & rearTarget != null) {
@@ -151,6 +151,8 @@ public class ParticipantController :NetworkBehaviour
 					//Debug.Log(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
 					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < 1f) {
 						mode = modes.sitting;
+						transform.position = sitTargetV;
+						transform.rotation = sitTarget.transform.rotation;
 	
 					}
 				} else mode = modes.sitting;
@@ -186,7 +188,7 @@ public class ParticipantController :NetworkBehaviour
 						
 					
 
-		
+				Debug.LogWarning(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
 
 
 				break;
