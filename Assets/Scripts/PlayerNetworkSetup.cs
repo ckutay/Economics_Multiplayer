@@ -233,12 +233,20 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	[Command]
 	public void Cmd_broadcast (string _message)
 	{
+		Debug.LogWarning ("Broadcast");
 		//send message to all players - use synvar on script on Canvas??
 		GameObject[] gos;
 		gos = GameObject.FindGameObjectsWithTag ("Player");
 		//update as player enters
 		foreach (GameObject go in gos) {
-
+		//	try{
+		//		for (int i=0; i<boxCount;i++){
+			//		Debug.LogWarning("hosts");
+		//			Debug.LogWarning(gameManager.tokenBoxes [i].GetComponent<ExperimentController>().isHost);
+		//		}
+		//	}
+			//	catch{}
+			
 			try {
 				Transform tran = go.transform.Find ("FPCharacterCam").Find ("Canvas");
 
@@ -259,26 +267,27 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	[ClientRpc]
 	public void Rpc_broadcast (string _message)
 	{
-		//send message to all players - use synvar on script on Canvas??
-		GameObject[] gos;
-		gos = GameObject.FindGameObjectsWithTag ("Player");
-		//update as player enters
-		foreach (GameObject go in gos) {
+		
+			//send message to all players - use synvar on script on Canvas??
+			GameObject[] gos;
+			gos = GameObject.FindGameObjectsWithTag ("Player");
+			//update as player enters
+			foreach (GameObject go in gos) {
 
-			try {
-				Transform tran = go.transform.Find ("FPCharacterCam").Find ("Canvas");
+				try {
+					Transform tran = go.transform.Find ("FPCharacterCam").Find ("Canvas");
 
-				tran = tran.Find ("Text");
+					tran = tran.Find ("Text");
 
-				if (tran != null)
-					tran.gameObject.GetComponent<Text> ().text = _message;
+					if (tran != null)
+						tran.gameObject.GetComponent<Text> ().text = _message;
 
-			} catch (Exception e) {
+				} catch (Exception e) {
 
-				Debug.LogWarning (e);
+					Debug.LogWarning (e);
+				}
+
 			}
-
-		}
 
 
 	}
@@ -287,17 +296,18 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	[Command]
 	public void Cmd_change_currentStage ( int _stage_number, ExperimentController.runState _mode)
 	{
-
-		foreach (GameObject  exp_conts in gameManager.tokenBoxes) {
-			ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
+		Debug.LogWarning ("stage");
+			foreach (GameObject  exp_conts in gameManager.tokenBoxes) {
+				ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
 		
 				exp_cont.stage_number = _stage_number;
 
 				exp_cont.mode = _mode;
 
 
-		}
-		Rpc_change_currentStage (_stage_number, _mode);
+			}
+			Rpc_change_currentStage (_stage_number, _mode);
+
 	}
 	[ClientRpc]
 	public void Rpc_change_currentStage ( int _stage_number, ExperimentController.runState _mode)
@@ -317,7 +327,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 
 	[Command]
 	public void Cmd_ikActive(int _boxCount, bool _ikActive){
-
+		
 		gameManager.tokenBoxes[_boxCount].GetComponent<ExperimentController>().ikActive = _ikActive;
 
 	}

@@ -18,7 +18,7 @@ public class SetupServer : NetworkBehaviour
 	public int Port;
 	bool server = true;
 
-	NetworkClient nc;
+
 	//is this the first running system - otherwise do not need to setup server
 
 	CommonNetwork commonNetwork;
@@ -74,7 +74,7 @@ public class SetupServer : NetworkBehaviour
 					find = "results";
 					url = "/experiments/delete_results?experiment_id=" + commonNetwork.experiment_id + "&round_id=1";
 					StartCoroutine (commonNetwork.FetchHost_IP (url, "", ""));
-					Debug.LogWarning("Setup Ztree");
+					//Debug.LogWarning("Setup Ztree");
 
 				}
 
@@ -147,7 +147,7 @@ public class SetupServer : NetworkBehaviour
 				url = "/experiments/participant?participant=0&experiment_id=" + commonNetwork.experiment_id;
 				yield return StartCoroutine (commonNetwork.FetchParticipant (url));
 				networkManager.StartHost ();
-				Debug.Log ("server");
+				//Debug.Log ("server");
 
 			} else {
 
@@ -155,7 +155,7 @@ public class SetupServer : NetworkBehaviour
 				url = "/experiments/participant?participant=1&experiment_id=" + commonNetwork.experiment_id;
 				yield return StartCoroutine (commonNetwork.FetchParticipant (url));
 			
-				nc = networkManager.StartClient ();
+				networkManager.StartClient ();
 
 			}
 
@@ -163,6 +163,7 @@ public class SetupServer : NetworkBehaviour
 
 
 		}
+		yield break;
 	}
 
 	void showServerInformation ()

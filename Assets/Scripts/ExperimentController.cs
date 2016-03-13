@@ -293,11 +293,10 @@ public class ExperimentController : NetworkBehaviour
 				try {
 
 
-					if (_stage_number!=stage_number){
+					//if (_stage_number!=stage_number){
 						coinManager.player.Cmd_change_currentStage ( stage_number, mode);
-					Debug.LogWarning(stage_number);
-					Debug.LogWarning(mode);
-					}
+				
+					//}
 				} catch {
 				}
 
@@ -320,9 +319,9 @@ public class ExperimentController : NetworkBehaviour
 			urlReturn = false;
 			//Debug.LogWarning (url);
 
-			yield return StartCoroutine (WaitForSeconds (.1f));
+			yield return StartCoroutine (WaitForSeconds (.5f));
 			WWW www = new WWW (_url);
-	
+
 			yield return StartCoroutine (WaitForRequest (www));
 			//go to next step when done
 			urlReturn = true;
@@ -339,6 +338,7 @@ public class ExperimentController : NetworkBehaviour
 					}
 				} catch {
 					//message = null;
+					//yield return false;
 				}
 		
 				//Debug.Log (message);
@@ -347,7 +347,7 @@ public class ExperimentController : NetworkBehaviour
 
 					returnString = node [find];
 					returnFloat = 0;
-					Debug.LogWarning (node);
+				//	Debug.LogWarning (node);
 					if (find == "Results") {
 						//hack to get results into message- the time delay
 						//mens you cannot pick this up in the state machine
@@ -372,36 +372,36 @@ public class ExperimentController : NetworkBehaviour
 								//display results - no entered coins show anymore - fixit
 
 								canvasText.text = message + returnFloat.ToString ();
-								Debug.LogWarning (message + returnFloat.ToString ());
+							//	Debug.LogWarning (message + returnFloat.ToString ());
 								//stop broadcast
 								message = "";
 
 						
 							}
 							
-							yield return true;
+							 return true;
 					
 							//message for localplayer/tokenbox only
 						}
 
-						yield return true;
+						 return true;
 					} else if (Int32.TryParse (node [findInt], out returnInt)) {
 					
 						//Debug.Log(returnInt);
-						yield return true;
+						return true;
 					}
 
-					yield return true;
+					 return true;
 				} else {
 
 					if (Int32.TryParse (node [findInt], out returnInt))
-						yield return true;
+						return true;
 				
 				}
 			} else {
 				//Debug.LogWarning ("No node on api read for " + find + " or " + findInt);
 				//canvas.message = "Errer in stages for experiment: " + node;
-				yield return true;
+				return true;
 
 			}
 		}
