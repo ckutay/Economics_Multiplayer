@@ -119,8 +119,9 @@ public class CoinManager : NetworkBehaviour
 	}
 	void updateCoins(int _currentCoins){
 		{
+			currentCoins = _currentCoins;
 			if (_isLocalPlayer) {
-				currentCoins = _currentCoins;
+				
 				if (currentCoins >= 0) {
 					for (int i = maxCoins; i >= currentCoins; i--) {
 			
