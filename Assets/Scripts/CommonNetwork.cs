@@ -74,13 +74,13 @@ public class CommonNetwork : MonoBehaviour {
 				//setup as host
 
 			} else
-				return false;
+				yield return false;
 
 
 		} else {
 
 			Debug.Log ("No Node Network Setup for new participant");
-			return false;
+			yield return false;
 		}
 
 
@@ -110,7 +110,7 @@ public class CommonNetwork : MonoBehaviour {
 				//UNet bug - cannot use local host IP
 				//if (Host_IP==Network.player.ipAddress)Host_IP="127.0.0.1";
 
-				return true;
+				yield return true;
 			} else if (findInt.Length != 0) {
 				//collect integer values
 				int resultant;
@@ -124,14 +124,14 @@ public class CommonNetwork : MonoBehaviour {
 						Debug.LogWarning ("incorrect call");
 
 				} else {
-					return false;
+					yield return true;
 				}
 			}
 		} else {
 
 			Debug.LogWarning ("no node for " + find + " or " + findInt);
 
-			return false;
+			yield break;
 		}
 
 		yield break ;

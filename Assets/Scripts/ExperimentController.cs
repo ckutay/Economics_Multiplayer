@@ -379,33 +379,33 @@ public class ExperimentController : NetworkBehaviour
 						
 							}
 							
-							 return true;
+							 yield return true;
 					
 							//message for localplayer/tokenbox only
 						}
 
-						 return true;
+						yield return true;
 					} else if (Int32.TryParse (node [findInt], out returnInt)) {
 					
 						//Debug.Log(returnInt);
-						return true;
+						yield return true;
 					}
 
-					 return true;
+					yield  return true;
 				} else {
 
 					if (Int32.TryParse (node [findInt], out returnInt))
-						return true;
+						yield return true;
 				
 				}
 			} else {
 				//Debug.LogWarning ("No node on api read for " + find + " or " + findInt);
 				//canvas.message = "Errer in stages for experiment: " + node;
-				return true;
+				yield return true;
 
 			}
 		}
-
+		yield break;
 	}
 
 	IEnumerator setupWait (float num)
