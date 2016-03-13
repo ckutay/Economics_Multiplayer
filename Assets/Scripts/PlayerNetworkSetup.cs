@@ -187,7 +187,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 
 	[Command]
 
-	//Called from playernetworksetup for assigning cotnrol of token box
+	//Called from playernetworksetup for assigning control of token box -not used!!
 	public void Cmd_Get_Authority (int _boxCount)
 	{
 		GameObject box = gameManager.tokenBoxes [_boxCount].gameObject;
@@ -202,7 +202,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 		 gameManager.tokenBoxes [boxCount]=newBox;
 	}
 
-	//from AddPlayer when instatiate character
+	//from AddPlayer when have instatiated character
 	[ClientRpc]
 	public void	Rpc_set_prefab ()
 	{
@@ -213,13 +213,25 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	}
 	//called form coin manager as has no authority
 	[Command]
-	public void Cmd_Update_Coins(int _boxCount, int _currentCoins){
+	public void Cmd_Update_Coins(int _boxCount, int _currentCoins, bool _result){
 
 		gameManager.tokenBoxes[_boxCount].GetComponent<CoinManager>().currentCoins = _currentCoins;
+		gameManager.tokenBoxes[_boxCount].GetComponent<CoinManager>().result = _result;
+		//use syncvar?
+		//Rpc_Update_Coins (_boxCount, _currentCoins, _result);
 	}
+	[ClientRpc]
+	public void Rpc_Update_Coins(int _boxCount, int _currentCoins, bool _result){
+
+		if (gameManager) {
+			gameManager.tokenBoxes [_boxCount].GetComponent<CoinManager> ().currentCoins = _currentCoins;
+			gameManager.tokenBoxes [_boxCount].GetComponent<CoinManager> ().result = _result;
+		}
+	}
+
 	//caleld form experiment controller to send update messages from ZTree
 	[Command]
-	public void Cmd_broadcast (string message)
+	public void Cmd_broadcast (string _message)
 	{
 		//send message to all players - use synvar on script on Canvas??
 		GameObject[] gos;
@@ -233,7 +245,33 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				tran = tran.Find ("Text");
 
 				if (tran != null)
-					tran.gameObject.GetComponent<Text> ().text = message;
+					tran.gameObject.GetComponent<Text> ().text = _message;
+
+			} catch (Exception e) {
+
+				Debug.LogWarning (e);
+			}
+
+		}
+		Rpc_broadcast (_message);
+
+	}
+	[ClientRpc]
+	public void Rpc_broadcast (string _message)
+	{
+		//send message to all players - use synvar on script on Canvas??
+		GameObject[] gos;
+		gos = GameObject.FindGameObjectsWithTag ("Player");
+		//update as player enters
+		foreach (GameObject go in gos) {
+
+			try {
+				Transform tran = go.transform.Find ("FPCharacterCam").Find ("Canvas");
+
+				tran = tran.Find ("Text");
+
+				if (tran != null)
+					tran.gameObject.GetComponent<Text> ().text = _message;
 
 			} catch (Exception e) {
 
@@ -244,6 +282,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 
 
 	}
+
 	//called form expereiment controlle r to update stage from Ztree
 	[Command]
 	public void Cmd_change_currentStage ( int _stage_number, ExperimentController.runState _mode)
@@ -251,13 +290,31 @@ public class PlayerNetworkSetup : NetworkBehaviour
 
 		foreach (GameObject  exp_conts in gameManager.tokenBoxes) {
 			ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
+		
+				exp_cont.stage_number = _stage_number;
+
+				exp_cont.mode = _mode;
+
+
+		}
+		Rpc_change_currentStage (_stage_number, _mode);
+	}
+	[ClientRpc]
+	public void Rpc_change_currentStage ( int _stage_number, ExperimentController.runState _mode)
+	{
+
+		foreach (GameObject  exp_conts in gameManager.tokenBoxes) {
+			ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
+
 			exp_cont.stage_number = _stage_number;
 
 			exp_cont.mode = _mode;
 
+
 		}
 
 	}
+
 	[Command]
 	public void Cmd_ikActive(int _boxCount, bool _ikActive){
 

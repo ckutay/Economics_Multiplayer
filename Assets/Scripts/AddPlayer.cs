@@ -22,37 +22,40 @@ public class AddPlayer : NetworkBehaviour
 
 	void Start ()
 	{
-		
-		gameManager = GameObject.Find ("NetworkManager").GetComponent<GameManager> ();
-		networkManager = GameObject.Find ("NetworkManager").GetComponent<NetworkManager> ();
-		setupServer=GameObject.Find ("NetworkManager").GetComponent<SetupServer>();
-		commonNetwork=GameObject.Find ("NetworkManager").GetComponent<CommonNetwork>();
-		//Debug.LogWarning(NetworkTransport.IsStarted);
 		if (isLocalPlayer) {
-			//change for TESTING
-			gameManager.boxCount+=1;
-			if (gameManager.boxCount>commonNetwork.max_participants){
-				FPCharacterCam.gameObject.SetActive ( true);
-				FPCharacterCam.enabled = true;
-				audioListener.enabled = true;
-				//add wrning to default player
-				Canvas canvasgo = gameObject.GetComponentInChildren <Canvas> (true);
-				if (canvasgo) {
-					canvasgo.gameObject.SetActive (true);
-					canvasgo.enabled = true;
-					Text canvasText = canvasgo.transform.Find ("Text").gameObject.GetComponent<Text> ();
-					canvasText.text="You cannot join this game as the server is full";
+			gameManager = GameObject.Find ("NetworkManager").GetComponent<GameManager> ();
+			networkManager = GameObject.Find ("NetworkManager").GetComponent<NetworkManager> ();
+			setupServer = GameObject.Find ("NetworkManager").GetComponent<SetupServer> ();
+			commonNetwork = GameObject.Find ("NetworkManager").GetComponent<CommonNetwork> ();
+			//Debug.LogWarning(NetworkTransport.IsStarted);
+			if (isLocalPlayer) {
+				//change for TESTING
+				//gameManager.boxCount+=1;
+				if (gameManager.boxCount > commonNetwork.max_participants) {
+					FPCharacterCam.gameObject.SetActive (true);
+					FPCharacterCam.enabled = true;
+					audioListener.enabled = true;
+					//add wrning to default player
+					Canvas canvasgo = gameObject.GetComponentInChildren <Canvas> (true);
+					if (canvasgo) {
+						canvasgo.gameObject.SetActive (true);
+						canvasgo.enabled = true;
+						Text canvasText = canvasgo.transform.Find ("Text").gameObject.GetComponent<Text> ();
+						canvasText.text = "You cannot join this game as the server is full";
+					}
+			
+				} else if (gameManager.boxCount > -2) {
+					//if has received box count
+
+					//prefabs stored on GameManager but also registered on Newtwork Manager
+
+					Cmd_Spawn_Prefab (1 + gameManager.boxCount);
+			
+					//is destroyed after this
+					//FIXME - needed?
+					//PlayerNetworkSetup playerNetworkSetup = GetComponent<PlayerNetworkSetup> ();
+					//playerNetworkSetup.Rpc_set_prefab ();
 				}
-			
-			}else if (gameManager.boxCount >-2) {
-				//if has received box count
-
-				//prefabs stored on GameManager but all registered on Newtwork Manager
-
-				Cmd_Spawn_Prefab (1 + gameManager.boxCount);
-			
-		//is destroyed after this
-
 
 			}
 		}
@@ -63,6 +66,7 @@ public class AddPlayer : NetworkBehaviour
 	{
 		//boxCount plus one to include experimenter
 		GameManager.singleton.ServerRespawn(this, boxCount);
+
 	/*
 		playerPrefab = gameManager.playerPrefabs [boxCount];
 	

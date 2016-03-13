@@ -58,7 +58,7 @@ public class SetupServer : NetworkBehaviour
 					string url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Host_IP=" + Network.player.ipAddress;
 					StartCoroutine (commonNetwork.FetchHost_IP (url, find, ""));
 					findInt = "Port";
-					url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Port=8009";
+					url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Port=11000";
 					StartCoroutine (commonNetwork.FetchHost_IP (url, "", findInt));
 					//reset participants
 					url = "/experiments/participant?experiment_id=" + commonNetwork.experiment_id + "&participant=-1";
@@ -142,7 +142,9 @@ public class SetupServer : NetworkBehaviour
 			if (server) {
 				//different comment for participant = experimenters as do not add to ecperiment listmax
 		//fix for TESTING
-				url = "/experiments/participant?participant=1&experiment_id=" + commonNetwork.experiment_id;
+				//url = "/experiments/participant?participant=1&experiment_id=" + commonNetwork.experiment_id;
+
+				url = "/experiments/participant?participant=0&experiment_id=" + commonNetwork.experiment_id;
 				yield return StartCoroutine (commonNetwork.FetchParticipant (url));
 				networkManager.StartHost ();
 				Debug.Log ("server");

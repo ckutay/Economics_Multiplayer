@@ -47,6 +47,7 @@ public class ParticipantController :NetworkBehaviour
 	//from playernewtork setup
 	public Text canvasText;
 
+	ExperimentController exp_cont;
 
 	// Use this for initialization
 	void Start ()
@@ -60,7 +61,7 @@ public class ParticipantController :NetworkBehaviour
 		if (rearBone == null)
 			rearBone = transform.Find ("Armature/mixamorig:Hips");
 
-		mode = modes.start;
+		mode = modes.sit;
 	
 
 
@@ -76,7 +77,8 @@ public class ParticipantController :NetworkBehaviour
 
 			switch (mode) {
 			case modes.start:
-
+				mode=modes.sit;
+				break;
 		//	mode = modes.sitting;
 				if (walkTarget != null) {
 					//start walk
@@ -88,11 +90,14 @@ public class ParticipantController :NetworkBehaviour
 
 				break;
 			case modes.stand:
-			//stop walk
+			//end of game
 				animator.SetFloat ("Speed", 0);
-				if (box != null)
-					mode = modes.start;
+				animator.SetBool ("Sit", false);
 
+
+
+			
+			//	exp_cont.isHost = false;
 			
 				break;
 			case modes.walk:
@@ -123,12 +128,14 @@ public class ParticipantController :NetworkBehaviour
 			// use box target to back of chair for walk direction
 
 			//FIXME
-				Vector3 sitTargetV=sitTarget.transform.position;
+				if (sitTarget != null) {
+					Vector3 sitTargetV = sitTarget.transform.position;
 
-				//zero savced form start
-				sitTargetV.y=transPos;
-				transform.position=sitTargetV;
-				transform.rotation = sitTarget.transform.rotation;
+					//zero savced form start
+					sitTargetV.y = transPos;
+					transform.position = sitTarget.transform.position;
+					transform.rotation = sitTarget.transform.rotation;
+				}
 				mode = modes.sitting;
 	
 				animator.SetBool ("Sit", true);
@@ -156,7 +163,7 @@ public class ParticipantController :NetworkBehaviour
 						//go to experiment controller
 						mode = modes.run;
 						//setup up experiment controller once
-						ExperimentController exp_cont = null;
+						exp_cont = null;
 						//error if no coinmanager
 
 						if (coinManager == null) {
@@ -167,7 +174,7 @@ public class ParticipantController :NetworkBehaviour
 							exp_cont = coinManager.GetComponent<ExperimentController> ();
 							//start experiemnt
 							//exp_cont.mode = ExperimentController.runState.wait;
-							exp_cont.box = box;
+			//		exp_cont.box = box;
 							//button = exp_cont.button;
 							//link to canvas - done in playernetwork setup
 							//	exp_cont.canvasText=canvasText;

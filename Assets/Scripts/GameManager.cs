@@ -10,8 +10,8 @@ public class GameManager : NetworkBehaviour {
 	public GameObject[] playerPrefabs;
 	static public GameManager singleton;
 	public GameObject [] tokenBoxes;
-[SyncVar] 
-	public int boxCount=-2; 
+	[SyncVar] [HideInInspector]
+	public int boxCount; 
 
 	Text canvasText;
 	Text canvasTextUp;
@@ -28,7 +28,7 @@ public class GameManager : NetworkBehaviour {
 	// Use this for initialization
 	void Start () 
 	{
-		//direty check
+		//check registered all players
 		networkManager = GetComponent<NetworkManager> ();
 		foreach (GameObject playerPrefab in playerPrefabs)
 			if (!networkManager.spawnPrefabs.Contains(playerPrefab)){

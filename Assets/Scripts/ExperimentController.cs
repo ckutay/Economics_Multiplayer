@@ -27,7 +27,7 @@ public class ExperimentController : NetworkBehaviour
 
 	bool urlReturn;
 	string url;
-	int resultCoins;
+	int resultCoins=-1;
 	int effortCoins;
 	public enum runState
 	{
@@ -42,24 +42,24 @@ public class ExperimentController : NetworkBehaviour
 
 
 	public bool isHost;
-
+	public bool waiting;
 
 	int returnInt;
 	float returnFloat;
 	//public PlayerNetworkSetup setupBox;
 	public GameManager gameManager;
 	public CoinManager coinManager;
-	public GameObject box;
+
 	public int boxCount;
 	public Text canvasText;
 	string returnString;
-	string message = "";
+	[SyncVar] string message = "";
 	//set in playernetworksetup to create network authority
 	public ParticipantController participantController;
 	public bool _isLocalPlayer;
 	//Shared from host
 	//[HideInInspector]
-	[SyncVar]public int stage_number = 0;
+	[SyncVar] public int stage_number = 0;
 	[SyncVar]public runState mode = runState.wait;
 	public ExperimentController[] tokenBoxes;
 	IKBody ikBody=null ;
@@ -98,9 +98,10 @@ public class ExperimentController : NetworkBehaviour
 				list.Add (box.GetComponent<ExperimentController> ());
 			}
 			tokenBoxes = list.ToArray ();
-			start = false;
+
 		//Debug.Log(gameManager);
 		}
+		start = false;
 	}
 
 	void Update ()
@@ -116,8 +117,7 @@ public class ExperimentController : NetworkBehaviour
 			}
 
 			//not working in start unless set to active later  as no tokenbox- then not visible for collection tokenboxes FIXME
-			if(start)
-			setupHost();
+			if(start)	setupHost();
 	
 
 			if (_isLocalPlayer) {
@@ -137,13 +137,16 @@ public class ExperimentController : NetworkBehaviour
 
 				case runState.wait:
 			//wait for nest step - need signal that all have done it from api - FIXME
-
+					if (coinManager.isFinished) {
+						waiting = true;
+						coinManager.isFinished = false;
+					}
 
 					break;
 				case runState.ask:
 					//enable ik and sync
-					ikActive=true;
-					coinManager.player.Cmd_ikActive (boxCount,true);
+					ikActive = true;
+					coinManager.player.Cmd_ikActive (boxCount, true);
 
 				//set up to change coins
 					coinManager._isLocalPlayer = true;
@@ -152,7 +155,9 @@ public class ExperimentController : NetworkBehaviour
 					//nothing to braodcaset
 				
 					Vector3 target = button.transform.position;
-					lefthandEffector.rotation=Quaternion.Euler(-18f,-15f,40f);
+					lefthandEffector.rotation =coinManager.gameObject.transform.parent.rotation* Quaternion.Euler (-18f, -15f, 40f);
+					//need to add rotation of chair
+
 					lefthandEffector.transform.position = target;
 					button.GetComponent<ClearButton> ()._isLocalPlayer = true;
 				//when asked for coin number, send it	
@@ -160,7 +165,7 @@ public class ExperimentController : NetworkBehaviour
 					if (coinManager.isFinished & _isLocalPlayer) {
 						//cannot enter anymore
 						effortCoins = coinManager.currentCoins;
-						coinManager.isFinished = false;
+
 					
 						//send in result to ZTree
 						canvasText.text = "Wait for others to finish";
@@ -176,27 +181,32 @@ public class ExperimentController : NetworkBehaviour
 					break;
 
 				case runState.answer:
-					
-			//when get response from team input, display it - FIXME
-					coinManager.result = true;
-				//force go to next stage?
-
-			
-					//get result for previous stage for each participant
+		
 					url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + (stage_number - 1) + "&round_id=1&name=Result&participant_id=" + participant_id;
 					string find = "Results";
 					callServer (url, find, "", mode);
+				
+			
+					//get result for previous stage for each participant
+
 					find = "";
 					ikActive = false;
 					coinManager.player.Cmd_ikActive (boxCount, false);
 
 					break;
 				case runState.end:
+					//get last message
+					//wait before get result and update message
+					if (resultCoins >= 0)
+					if (!message.Equals (""))
+						StartCoroutine (resultMessage (message + resultCoins.ToString ()));
+					resultCoins = -1;
 
-					if (message.Equals(""))canvasText.text = message + (( resultCoins).ToString ());
 					message = null;
-					isHost = false;
-					gameManager.boxCount = -1;
+					//no more mesages sent
+
+					participantController.mode = ParticipantController.modes.stand;
+					//gameManager.boxCount = -1;
 
 		
 			//fix me
@@ -209,24 +219,27 @@ public class ExperimentController : NetworkBehaviour
 			}
 
 			//works when authority given during assigning box to player
-			if (isHost) {
-				try {
-
-					if (_isLocalPlayer) {
-						coinManager.player.Cmd_change_currentStage ( stage_number, mode);
-					}
-				} catch {
-				}
-			}
+		
 		
 		
 		}
+
 	}
 
+	IEnumerator resultMessage(string _message){
+		//make sure see return message before final result
+		yield return StartCoroutine (WaitForSeconds (.1f));
+		canvasText.text = _message;
+
+
+	}
 	void updateMove ()
 	{
-		if (isHost & message != null)
-			coinManager.player.Cmd_broadcast ( message);
+		//do not broadcast unless change as some are in waiting
+		int _stage_number = stage_number;
+	
+		string _message = message;
+		
 		if (isHost & urlReturn) {
 			string url;
 
@@ -263,7 +276,25 @@ public class ExperimentController : NetworkBehaviour
 
 			}
 
+			if (isHost) {
+				try {
 
+
+					if (_stage_number!=stage_number){
+						coinManager.player.Cmd_change_currentStage ( stage_number, mode);
+					Debug.LogWarning(stage_number);
+					Debug.LogWarning(mode);
+					}
+				} catch {
+				}
+			}
+
+		}
+
+		if (isHost & message != null & message != _message) {
+
+			coinManager.player.Cmd_broadcast (message);
+			Debug.LogWarning (message);
 		}
 	}
 
@@ -288,7 +319,7 @@ public class ExperimentController : NetworkBehaviour
 		yield return StartCoroutine (WaitForSeconds (.1f));
 		WWW www = new WWW (url);
 		url = "";
-		coinManager.result = false;
+
 		yield return StartCoroutine (WaitForRequest (www));
 		//go to next step when done
 		urlReturn = true;
@@ -322,11 +353,12 @@ public class ExperimentController : NetworkBehaviour
 						//FIXME
 						if (returnFloat > 0 && _mode == runState.answer) {
 							
-							resultCoins = coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
+						
 							coinManager.currentCoins -= (int)returnFloat;
+							resultCoins=	coinManager.maxCoins + 1 - effortCoins + coinManager.currentCoins;
 							Debug.Log (coinManager.currentCoins);
 						
-							//display results - no entered coins
+							//display results - no entered coins show anymore - fixit
 							coinManager.result = true;
 							canvasText.text = message + returnFloat.ToString ();
 
