@@ -77,6 +77,7 @@ public class ParticipantController :NetworkBehaviour
 
 			switch (mode) {
 			case modes.start:
+				animator.SetBool ("Sit", true);
 				mode=modes.sit;
 				break;
 		//	alternate walk start
@@ -138,28 +139,29 @@ public class ParticipantController :NetworkBehaviour
 					transform.position = sitTarget.transform.position;
 					transform.rotation = sitTarget.transform.rotation;
 				}
-				mode = modes.sitting;
+				if (rearBone != null & rearTarget != null) {
+
+
+
+				
+
+					//transform.position += relativePos;
+					rearBone.transform.position = Vector3.Lerp (rearBone.transform.position, rearTarget.transform.position, .5f);
+
+					//Debug.Log(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
+					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < 1f) {
+						mode = modes.sitting;
 	
+					}
+				} else mode = modes.sitting;
 
 				break;
 			case modes.sitting:
 				
-
-				if (rearBone != null & rearTarget != null) {
-
-
-				
-					relativePos =   rearBone.transform.position -rearTarget.transform.position;
-					relativePos.y = 0f;
-
-
-					//transform.position += relativePos;
-					rearBone.transform.position = Vector3.Lerp (rearBone.transform.position, -rearTarget.transform.position, .5f);
-					Debug.LogWarning (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position));
-					//Debug.Log(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
-					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < 1f) {
+				//reset to centre of seatr
+			
 						
-						rearBone.transform.position= rearTarget.transform.position;
+				if (rearBone != null & rearTarget != null) rearBone.transform.position= rearTarget.transform.position;
 						//transform.LookAt(box.transform);
 						
 						//go to experiment controller
@@ -182,10 +184,10 @@ public class ParticipantController :NetworkBehaviour
 							//	exp_cont.canvasText=canvasText;
 
 						
-					}
+					
 
 		
-				}
+
 
 				break;
 			case modes.run:
