@@ -79,7 +79,7 @@ public class ParticipantController :NetworkBehaviour
 			case modes.start:
 				mode=modes.sit;
 				break;
-		//	mode = modes.sitting;
+		//	alternate walk start
 				if (walkTarget != null) {
 					//start walk
 					animator.SetFloat ("Speed", 1);
@@ -123,11 +123,13 @@ public class ParticipantController :NetworkBehaviour
 				break;
 			case modes.sit:
 			//sitting down
+				animator.SetBool ("Sit", true);
+				animator.SetFloat ("Speed", 0);
 				canvasText.text = "You will contribute effort in the form of coins";
 
 			// use box target to back of chair for walk direction
 
-			//FIXME
+			//FIXME set standing at sittarget position
 				if (sitTarget != null) {
 					Vector3 sitTargetV = sitTarget.transform.position;
 
@@ -138,8 +140,7 @@ public class ParticipantController :NetworkBehaviour
 				}
 				mode = modes.sitting;
 	
-				animator.SetBool ("Sit", true);
-				animator.SetFloat ("Speed", 0);
+
 				break;
 			case modes.sitting:
 				
@@ -153,10 +154,11 @@ public class ParticipantController :NetworkBehaviour
 
 
 					//transform.position += relativePos;
-					rearBone.transform.position = Vector3.Lerp (rearBone.transform.position, relativePos, .5f);
-
+					rearBone.transform.position = Vector3.Lerp (rearBone.transform.position, -rearTarget.transform.position, .5f);
+					Debug.LogWarning (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position));
 					//Debug.Log(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
-					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < 5f) {
+					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < 1f) {
+						
 						rearBone.transform.position= rearTarget.transform.position;
 						//transform.LookAt(box.transform);
 						
@@ -187,7 +189,7 @@ public class ParticipantController :NetworkBehaviour
 
 				break;
 			case modes.run:
-
+				rearBone.transform.position= rearTarget.transform.position;
 				break;
 
 			}

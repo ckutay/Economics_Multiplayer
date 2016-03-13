@@ -200,11 +200,12 @@ public class ExperimentController : NetworkBehaviour
 					if (resultCoins >= 0)
 					if (!message.Equals (""))
 						StartCoroutine (resultMessage (message + resultCoins.ToString ()));
+					message = "";
 					resultCoins = -1;
 
-					message = null;
+				
 					//no more mesages sent
-
+					Debug.Log("End State");
 					participantController.mode = ParticipantController.modes.stand;
 					//gameManager.boxCount = -1;
 
