@@ -65,6 +65,8 @@ public class AddPlayer : NetworkBehaviour
 	public void Cmd_Spawn_Prefab (int boxCount)
 	{
 		//boxCount plus one to include experimenter
+		//place at 1.2 height
+		Debug.Log(boxCount);
 		GameManager.singleton.ServerRespawn(this, boxCount);
 
 	/*

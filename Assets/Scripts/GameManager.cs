@@ -35,12 +35,15 @@ public class GameManager : NetworkBehaviour {
 
 			Debug.LogError("The player prefabs on GameManager must be included in the spawnPrefabs in NetworkManager");
 				}
-		//setup is is -1 when assigned experimenter
+		//setup  is -1 when assigned experimenter
 
 		//testing only
 
+		//boxCount = -1;
 		boxCount = -2;
-		//get all the canvas texts - 1 per participant
+
+
+	
 	//	canvasText = GameObject.FindGameObjectWithTag("Canvas").transform.GetChild (1).gameObject.GetComponent<Text>();
 	//	canvasTextUp = GameObject.FindGameObjectWithTag("Canvas").transform.GetChild (2).gameObject.GetComponent<Text>();
 	}

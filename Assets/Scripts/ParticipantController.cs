@@ -11,7 +11,8 @@ public class ParticipantController :NetworkBehaviour
 
 	public int participant;
 	public int participant_id;
-	public float transPos;
+	float startHeight = -1.3f;
+	Vector3 sitTargetV;
 
 	public enum modes
 	{
@@ -53,15 +54,15 @@ public class ParticipantController :NetworkBehaviour
 	void Start ()
 	{
 		
-		transPos = transform.position.y;//save for use
-	
+
+
 		animator = GetComponent<Animator> ();
 		gameManager = GameObject.Find ("NetworkManager").GetComponent<GameManager> ();
 		rearBone = transform.Find ("mixamorig:Hips");
 		if (rearBone == null)
 			rearBone = transform.Find ("Armature/mixamorig:Hips");
 
-		mode = modes.sit;
+		mode = modes.start;
 	
 
 
@@ -78,7 +79,10 @@ public class ParticipantController :NetworkBehaviour
 			switch (mode) {
 			case modes.start:
 				animator.SetBool ("Sit", true);
-				mode=modes.sit;
+				mode = modes.sitting;
+				if (sitTarget != null)
+					sitTargetV = sitTarget.transform.position; 
+				sitTargetV.y = startHeight;
 				break;
 		//	alternate walk start
 				if (walkTarget != null) {
@@ -95,9 +99,6 @@ public class ParticipantController :NetworkBehaviour
 				animator.SetFloat ("Speed", 0);
 				animator.SetBool ("Sit", false);
 
-
-
-			
 			//	exp_cont.isHost = false;
 			
 				break;
@@ -115,7 +116,7 @@ public class ParticipantController :NetworkBehaviour
 					if (walkTarget == null)
 						mode = modes.sit;
 					
-					target = sitTarget.transform.position;
+					target = sitTargetV;
 					walkTarget = null;
 
 
@@ -129,13 +130,10 @@ public class ParticipantController :NetworkBehaviour
 				canvasText.text = "You will contribute effort in the form of coins";
 
 			// use box target to back of chair for walk direction
-				Vector3 sitTargetV=sitTarget.transform.position; 
+
 			//FIXME set standing at sittarget position
 				if (sitTarget != null) {
-					 sitTargetV = sitTarget.transform.position;
 
-					//zero savced form start
-					sitTargetV.y = transPos;
 					transform.position = sitTargetV;
 					transform.rotation = sitTarget.transform.rotation;
 				}
@@ -155,29 +153,36 @@ public class ParticipantController :NetworkBehaviour
 						transform.rotation = sitTarget.transform.rotation;
 	
 					}
-				} else mode = modes.sitting;
-
+				} else {
+					transform.position = sitTargetV;
+					transform.rotation = sitTarget.transform.rotation;
+					mode = modes.sitting;
+				}
 				break;
 			case modes.sitting:
-				
+				if (sitTarget != null) {
+
+					transform.position = sitTargetV;
+					transform.rotation = sitTarget.transform.rotation;
+				}
 				//reset to centre of seatr
 			
 						
-				if (rearBone != null & rearTarget != null) rearBone.transform.position= rearTarget.transform.position;
+				//if (rearBone != null & rearTarget != null) rearBone.transform.position= rearTarget.transform.position;
 						//transform.LookAt(box.transform);
 						
 						//go to experiment controller
-						mode = modes.run;
+				mode = modes.run;
 						//setup up experiment controller once
-						exp_cont = null;
+				exp_cont = null;
 						//error if no coinmanager
 
-						if (coinManager == null) {
-							coinManager = box.GetComponent<CoinManager> ();
-						}
+				if (coinManager == null) {
+					coinManager = box.GetComponent<CoinManager> ();
+				}
 							
 
-							exp_cont = coinManager.GetComponent<ExperimentController> ();
+				exp_cont = coinManager.GetComponent<ExperimentController> ();
 							//start experiemnt
 							//exp_cont.mode = ExperimentController.runState.wait;
 			//		exp_cont.box = box;
@@ -188,12 +193,12 @@ public class ParticipantController :NetworkBehaviour
 						
 					
 
-				Debug.LogWarning(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
+				//Debug.LogWarning(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
 
 
 				break;
 			case modes.run:
-				rearBone.transform.position= rearTarget.transform.position;
+				rearBone.transform.position = rearTarget.transform.position;
 				break;
 
 			}

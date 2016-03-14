@@ -14,6 +14,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	[SerializeField] AudioListener audioListener;
 
 	GameManager gameManager;
+	float startHeight=-1.2f;
 	CommonNetwork commonNetwork;
 	ParticipantController participantController;
 
@@ -150,7 +151,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				//spawnpoint set on chair/box
 
 			
-				spawnPointV.y=transform.position.y;
+				spawnPointV.y=startHeight;
 				transform.position = spawnPointV;
 			
 			
@@ -231,7 +232,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 
 	//caleld form experiment controller to send update messages from ZTree
 	[Command]
-	public void Cmd_broadcast (string _message)
+	public void Cmd_broadcast (string _message, string _resultMessage)
 	{
 		Debug.LogWarning ("Broadcast");
 		//send message to all players - use synvar on script on Canvas??
@@ -248,12 +249,16 @@ public class PlayerNetworkSetup : NetworkBehaviour
 			//	catch{}
 			
 			try {
-				Transform tran = go.transform.Find ("FPCharacterCam").Find ("Canvas");
+				ExperimentController exp_cont=go.transform.GetComponent<PlayerNetworkSetup>().tokenBox.transform.GetComponent<ExperimentController>();
+					exp_cont.message=_message;
+				exp_cont.resultMessage=_resultMessage;
 
-				tran = tran.Find ("Text");
+				//Transform tran = go.transform.Find ("FPCharacterCam").Find ("Canvas");
 
-				if (tran != null)
-					tran.gameObject.GetComponent<Text> ().text = _message;
+				//tran = tran.Find ("Text");
+
+				//if (tran != null)
+				//	tran.gameObject.GetComponent<Text> ().text = _message;
 
 			} catch (Exception e) {
 
@@ -296,7 +301,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	[Command]
 	public void Cmd_change_currentStage ( int _stage_number, ExperimentController.runState _mode)
 	{
-		Debug.LogWarning ("stage");
+		//Debug.LogWarning ("stage");
 			foreach (GameObject  exp_conts in gameManager.tokenBoxes) {
 				ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
 		

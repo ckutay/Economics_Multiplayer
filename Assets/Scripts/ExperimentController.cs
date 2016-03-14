@@ -24,12 +24,15 @@ public class ExperimentController : NetworkBehaviour
 	[SyncVar]public bool ikActive;
 
 	public float transPos;
-
+	//watiing for url output
 	bool urlReturn;
+	//first run of answer etc
+	bool update = true;
 	string url;
-	int resultCoins=-1;
+	int resultCoins = -1;
 
 	int effortCoins;
+
 	public enum runState
 	{
 		start,
@@ -44,7 +47,8 @@ public class ExperimentController : NetworkBehaviour
 
 	public bool isHost;
 	public bool waiting;
-	string resultMessage="";
+	//returns from url
+	string returnString;
 	int returnInt;
 	float returnFloat;
 	//public PlayerNetworkSetup setupBox;
@@ -53,17 +57,23 @@ public class ExperimentController : NetworkBehaviour
 
 	public int boxCount;
 	public Text canvasText;
-	string returnString;
-	[SyncVar] string message = "";
+
+	[SyncVar] public string message = "";
+	[SyncVar] public string resultMessage = "";
+	string oldMessage;
+
 	//set in playernetworksetup to create network authority
 	public ParticipantController participantController;
 	public bool _isLocalPlayer;
 	//Shared from host
 	//[HideInInspector]
+
 	[SyncVar] public int stage_number = 0;
 	[SyncVar]public runState mode = runState.wait;
+	//stage number when result recorded
+	int resultStage=0;
 	public ExperimentController[] tokenBoxes;
-	IKBody ikBody=null ;
+	IKBody ikBody = null;
 	//fixme
 	string result;
 	bool start;
@@ -73,6 +83,7 @@ public class ExperimentController : NetworkBehaviour
 		//start at stage 0
 
 		urlReturn = true;
+		update = true;
 
 		coinManager = (CoinManager)GetComponent<CoinManager> ();
 
@@ -80,7 +91,7 @@ public class ExperimentController : NetworkBehaviour
 		gameManager = GameObject.Find ("NetworkManager").GetComponent<GameManager> ();
 		boxCount = gameManager.boxCount;
 		textFileReader = GameObject.Find ("NetworkManager").GetComponent<TextFileReader> ();
-		button=transform.Find("Capsule");
+		button = transform.Find ("Capsule");
 	
 		start = true;
 
@@ -88,9 +99,7 @@ public class ExperimentController : NetworkBehaviour
 
 	void setupHost ()
 	{
-		
 
-			
 
 		if (isHost && tokenBoxes.Length == 0) {
 			List <ExperimentController> list = new List<ExperimentController> ();
@@ -100,114 +109,121 @@ public class ExperimentController : NetworkBehaviour
 			}
 			tokenBoxes = list.ToArray ();
 
-		//Debug.Log(gameManager);
+			//Debug.Log(gameManager);
 		}
 		start = false;
 	}
 
 	void Update ()
 	{
-		
+		//wait for updates from api
 
 		if (urlReturn) {
 			// url calls in rest of update do not work
 			if (isHost && _isLocalPlayer) {
-				//find next step
+				//find next step and message
 				updateMove ();
-		
+				//message etc is send on Command on server and to all players
+				//the syncvar to localplayer
 			}
 
+
 			//not working in start unless set to active later  as no tokenbox- then not visible for collection tokenboxes FIXME
-			if(start)	setupHost();
+			if (start)
+				setupHost ();
 	
 
 			if (_isLocalPlayer) {
 				//set from the server syncvar
 
-				if (ikBody!=null & coinManager.player!=null)	ikBody.ikActive = ikActive;
-				else ikBody = coinManager.player.gameObject.GetComponent<IKBody> ();
+				if (ikBody != null & coinManager.player != null)
+					ikBody.ikActive = ikActive;
+				else
+					//get component if null
+					ikBody = coinManager.player.gameObject.GetComponent<IKBody> ();
 			
 				switch (mode) {
 				case runState.start:
+					//show this at start
 
 					coinManager.result = false;
 					canvasText.text = "Wait for others to join you";
-				//show this before starts
-
+			
 					break;
 
 				case runState.wait:
-			//wait for nest step - need signal that all have done it from api - FIXME
+					//wait for next step - need signal that all have done it from api - FIXME?
+
 					if (coinManager.isFinished) {
 						waiting = true;
 						coinManager.isFinished = false;
 					}
-
+					//don't change message so not rewritten
 					break;
 				case runState.ask:
 					//enable ik and sync
 					ikActive = true;
+					//send to server then SyncVar
 					coinManager.player.Cmd_ikActive (boxCount, true);
 
-				//set up to change coins
+					//set up to change coins
 					coinManager._isLocalPlayer = true;
-
-				//assign coin box to player
-					//nothing to braodcaset
-				
+							
 					Vector3 target = button.transform.position;
-					lefthandEffector.rotation =coinManager.gameObject.transform.parent.rotation* Quaternion.Euler (-18f, -15f, 40f);
+					lefthandEffector.rotation = coinManager.gameObject.transform.parent.rotation * Quaternion.Euler (-18f, -15f, 40f);
 					//need to add rotation of chair
 
 					lefthandEffector.transform.position = target;
 					button.GetComponent<ClearButton> ()._isLocalPlayer = true;
-				//when asked for coin number, send it	
+					//send coin number	
 					canvasText.text = message + " You have selected " + coinManager.currentCoins + " coins";
 					if (coinManager.isFinished & _isLocalPlayer) {
 						//cannot enter anymore
 						effortCoins = coinManager.currentCoins;
 						button.GetComponent<ClearButton> ()._isLocalPlayer = false;
-					
+						resultStage=stage_number;
 						//send in result to ZTree
 						canvasText.text = "Wait for others to finish";
 						url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + stage_number + "&participant_id=" + participant_id + "&round_id=1&name=CoinEffort&value=" + coinManager.currentCoins;
-						StartCoroutine (FetchStage (url, "","", mode));
-					
-
+						StartCoroutine (FetchStage (url, "", "", mode));
+						//not playing anymore
+						ikActive = false;
+						coinManager.player.Cmd_ikActive (boxCount, false);
 						url = "";
 						mode = runState.wait;
-						
-
+						//cannot use button
+						button.GetComponent<ClearButton>().SetToClear (false);
 					}
 
 					break;
 
 				case runState.answer:
-					//get result for previous stage for each participant
-					url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + (stage_number - 1) + "&round_id=1&name=Result&participant_id=" + participant_id;
-
-					StartCoroutine (FetchStage (url, "Results", "", mode));
-					url = "";
-
-				
-			
-				
-
-				
-					ikActive = false;
-					coinManager.player.Cmd_ikActive (boxCount, false);
-					//mode = runState.wait;
+					//call for result once per participant
+					if (update) {
+						//get result for previous stage for each participant
+						url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + (resultStage) + "&round_id=1&name=Result&participant_id=" + participant_id;
+						//gets result and displays to local canvasText.text
+						StartCoroutine (FetchStage (url, "Results", "", mode));
+						//has wait at end to stop going to end screen too quick
+						url = "";
+						update = false;
+						//FIXME should go to wait, but get message change
+						//mode = runState.wait;
+					}
 
 					break;
 				case runState.end:
-					//get last message
+
+					Debug.LogWarning ("got to end");
+					Debug.LogWarning (resultCoins);
+					Debug.Log (resultMessage);
 					//wait before get result and update message
-					Debug.LogWarning("got to end");
-					Debug.LogWarning(resultCoins);
-				
-					if (resultCoins >= 0 & !resultMessage.Equals (""))
-						canvasText.text =message + resultCoins.ToString ();
-					
+					if (resultCoins >= 0 & !resultMessage.Equals ("")) {
+						canvasText.text = resultMessage + resultCoins.ToString ();
+						//stop overwrite
+						message = "";
+						resultMessage = "";
+					}
 					resultCoins = -1;
 
 				
@@ -216,32 +232,42 @@ public class ExperimentController : NetworkBehaviour
 					participantController.mode = ParticipantController.modes.stand;
 					//gameManager.boxCount = -1;
 
-		
-			//fix me
-
-				
 
 					break;
 				}
 				//Debug.LogWarning (message);
 			}
 
-			//works when authority given during assigning box to player
+			//works when syncvar gives new braodcast message to player
 		
-		
+			if (_isLocalPlayer & oldMessage != message & !message.Equals ("")) {
+				showMessage (message);
+				oldMessage = message;
+			}
 		
 		}
 
 	}
 
 	//IEnumerator resultMessage(string _message){
-		//make sure see return message before final result
+	//make sure see return message before final result
 	//	yield return StartCoroutine (WaitForSeconds (.1f));
 	//	canvasText.text = _message;
-		//reset in class
+	//reset in class
 	//	message = "";
 
 	//}
+
+
+	//deals with group messages, not individual ones
+	//they are done under modes
+	void showMessage (string _message)
+	{
+		//update if not blank
+		if (!_message.Equals(""))canvasText.text = _message;
+
+	}
+
 	void updateMove ()
 	{
 		//runs on host localplayer only
@@ -250,7 +276,7 @@ public class ExperimentController : NetworkBehaviour
 	
 		string _message = message;
 	
-		if (urlReturn ) {
+		if (urlReturn) {
 
 
 
@@ -290,22 +316,23 @@ public class ExperimentController : NetworkBehaviour
 			}
 
 
-				try {
+			try {
 
 
-					//if (_stage_number!=stage_number){
-						coinManager.player.Cmd_change_currentStage ( stage_number, mode);
+				//if (_stage_number!=stage_number){
+				coinManager.player.Cmd_change_currentStage (stage_number, mode);
 				
-					//}
-				} catch {
-				}
+				//}
+			} catch {
+			}
 
 
 		}
 
-		if (message != null & message != _message) {
-
-			coinManager.player.Cmd_broadcast (message);
+		if ( message != _message) {
+			//send update of result Message too for when it comes in
+			//empy message not displayed
+			coinManager.player.Cmd_broadcast (message, resultMessage);
 
 		}
 	}
@@ -333,8 +360,8 @@ public class ExperimentController : NetworkBehaviour
 				try {
 					//get stage message
 					message = node ["message"];
-					if (node["type_stage"]=="End"){
-						resultMessage=message;
+					if (node ["type_stage"] == "End") {
+						resultMessage = message;
 					}
 				} catch {
 					//message = null;
@@ -347,7 +374,7 @@ public class ExperimentController : NetworkBehaviour
 
 					returnString = node [find];
 					returnFloat = 0;
-				//	Debug.LogWarning (node);
+					//	Debug.LogWarning (node);
 					if (find == "Results") {
 						//hack to get results into message- the time delay
 						//mens you cannot pick this up in the state machine
@@ -359,9 +386,9 @@ public class ExperimentController : NetworkBehaviour
 					
 
 							//FIXME
-							if (returnFloat > 0 && !message.Equals("")) {
-								resultCoins =	coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
+							if (returnFloat > 0 && !message.Equals ("")) {
 								//set to display result only
+								resultCoins = -1;
 								coinManager.result = true;
 						
 								coinManager.currentCoins -= (int)returnFloat;
@@ -372,14 +399,16 @@ public class ExperimentController : NetworkBehaviour
 								//display results - no entered coins show anymore - fixit
 
 								canvasText.text = message + returnFloat.ToString ();
-							//	Debug.LogWarning (message + returnFloat.ToString ());
+								//	Debug.LogWarning (message + returnFloat.ToString ());
 								//stop broadcast
 								message = "";
+								yield return StartCoroutine (WaitForSeconds (.5f));
+								//delay display of final message
+								resultCoins =	coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
 
-						
 							}
 							
-							 yield return true;
+							yield return true;
 					
 							//message for localplayer/tokenbox only
 						}

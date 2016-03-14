@@ -75,6 +75,8 @@ public class CoinManager : NetworkBehaviour
 		if (Input.GetAxis ("D-PadX") == 1.0f | Input.GetAxis ("D-PadX") == -1.0f) {
 			//how to say finished
 			isFinished = true;
+
+			
 		}
 		if (Input.GetAxis ("D-PadY") > 0.0f && isPressed == false) {
 				
