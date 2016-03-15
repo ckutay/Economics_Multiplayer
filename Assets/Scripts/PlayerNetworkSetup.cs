@@ -229,7 +229,14 @@ public class PlayerNetworkSetup : NetworkBehaviour
 			gameManager.tokenBoxes [_boxCount].GetComponent<CoinManager> ().result = _result;
 		}
 	}
+	[Command]
+	//single mesge send
+	public void Cmd_Set_Text(int _boxCount, string _message, string _resultMessage){
 
+		ExperimentController exp_cont = gameManager.tokenBoxes [_boxCount].GetComponent<ExperimentController> ();
+		exp_cont.message = _message;
+		exp_cont.resultMessage = _resultMessage;
+		}
 	//caleld form experiment controller to send update messages from ZTree
 	[Command]
 	public void Cmd_broadcast (string _message, string _resultMessage)

@@ -213,19 +213,15 @@ public class ExperimentController : NetworkBehaviour
 
 					break;
 				case runState.end:
+					//broadcast the local change
 
-					Debug.LogWarning ("got to end");
-					Debug.LogWarning (resultCoins);
-					Debug.Log (resultMessage);
-					//wait before get result and update message
-					if (resultCoins >= 0 & !resultMessage.Equals ("")) {
-						canvasText.text = resultMessage + resultCoins.ToString ();
+					//resultCoins = -1;
+					if ( !resultMessage.Equals ("")) {
+						canvasText.text = resultMessage ;
 						//stop overwrite
 						message = "";
 						resultMessage = "";
 					}
-					resultCoins = -1;
-
 				
 					//no more mesages sent
 				
@@ -388,7 +384,7 @@ public class ExperimentController : NetworkBehaviour
 							//FIXME
 							if (returnFloat > 0 && !message.Equals ("")) {
 								//set to display result only
-								resultCoins = -1;
+								resultCoins =	coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
 								coinManager.result = true;
 						
 								coinManager.currentCoins -= (int)returnFloat;
@@ -402,10 +398,20 @@ public class ExperimentController : NetworkBehaviour
 								//	Debug.LogWarning (message + returnFloat.ToString ());
 								//stop broadcast
 								message = "";
-								yield return StartCoroutine (WaitForSeconds (.5f));
 								//delay display of final message
-								resultCoins =	coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
 
+								yield return StartCoroutine (WaitForSeconds (.5f));
+							//broadcast new message
+
+								resultCoins =	coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
+								coinManager.player.Cmd_Set_Text (boxCount, message, resultMessage + resultCoins.ToString ());
+								//wait before get result and update message
+								if ( !resultMessage.Equals ("")) {
+									canvasText.text = resultMessage ;
+									//stop overwrite
+									message = "";
+									resultMessage = "";
+								}
 							}
 							
 							yield return true;
