@@ -12,12 +12,12 @@ public class CoinManager : NetworkBehaviour
 	bool isPressed = false;
 
 	//should be updated onj server and client;
-	[SyncVar (hook = "updateCoins")]public int currentCoins;
+	[SyncVar (hook = "updateCoins")] public int currentCoins;
 
 	public Material clear;
 	public bool _isLocalPlayer = false;
 	public int maxCoins = 19;
-	[HideInInspector][SyncVar]public bool result;
+	[SyncVar] public bool result;
 	public bool isFinished=false;
 	public PlayerNetworkSetup player=null;
 	public int boxCount;
@@ -32,7 +32,7 @@ public class CoinManager : NetworkBehaviour
 		}
 		currentCoins = 0;
 		gameManager = GameObject.Find ("NetworkManager").GetComponent<GameManager> ();
-			boxCount =GameObject.Find ("NetworkManager").GetComponent<GameManager> ().boxCount;
+			boxCount =gameManager.boxCount;
 	}
 	
 	// Update is called once per frame
@@ -75,6 +75,8 @@ public class CoinManager : NetworkBehaviour
 		if (Input.GetAxis ("D-PadX") == 1.0f | Input.GetAxis ("D-PadX") == -1.0f) {
 			//how to say finished
 			isFinished = true;
+
+			
 		}
 		if (Input.GetAxis ("D-PadY") > 0.0f && isPressed == false) {
 				
@@ -107,67 +109,44 @@ public class CoinManager : NetworkBehaviour
 			//send to server
 
 			
-		if(_isLocalPlayer)player.Cmd_Update_Coins(boxCount, currentCoins);
+		if(_isLocalPlayer)player.Cmd_Update_Coins(boxCount, currentCoins, result);
 
-		
+		//updateCoins(currentCoins);
 
 	}
 	//enact server update on coins
-	void FixedUpdate ()
-	{
-		if (currentCoins>=0){
-		for (int i = maxCoins; i >= currentCoins; i--) {
+	void FixedUpdate(){
+		if(_isLocalPlayer)
+		updateCoins (currentCoins);
+	}
+	void updateCoins(int _currentCoins){
+		{
+			currentCoins = _currentCoins;
+			if (_isLocalPlayer) {
+				
+				if (currentCoins >= 0) {
+					for (int i = maxCoins; i >= currentCoins; i--) {
 			
-			effort [i].SetActive (false);
-			resource [i].SetActive (true);
-		}
+						effort [i].SetActive (false);
+						resource [i].SetActive (true);
+					}
 
-		for (int i = 0; i < currentCoins; i++) {
-			if (result) {
-				effort [i].SetActive (false);
-			} else
-				effort [i].SetActive (true);
+					for (int i = 0; i < currentCoins; i++) {
+						if (result) {
+							effort [i].SetActive (false);
+						} else
+							effort [i].SetActive (true);
 			
-			resource [i].SetActive (false);
-		}
+						resource [i].SetActive (false);
+					}
+				}
+			}
 		}
 	}
 	//when returns from server
 
-		void updateCoins(int _currentCoins){
-		currentCoins=_currentCoins;
-		}
-
-
-
-	void Rpc_ChangeCoins (int arrayValue, bool _isAdd)
-	{
-		try {
-			if (result) {
-				effort [arrayValue].SetActive (false);
-			} else
-				effort [arrayValue].SetActive (_isAdd);
-			resource [arrayValue].SetActive (!_isAdd);
-		} catch (Exception e){
-			Debug.LogWarning(e);
-		}
-		Debug.Log ("Rpc called");
-
-	}
-
-
-
-
-	void Change_currentCoins (int _currentCoins, bool _result)
-	{
-		result = _result;
-		
-		currentCoins = _currentCoins;
 	
-		Debug.Log ("Cmd called");
 
-
-	}
 
 
 

@@ -74,17 +74,17 @@ public class CommonNetwork : MonoBehaviour {
 				//setup as host
 
 			} else
-				yield break;
+				yield return false;
 
 
 		} else {
 
 			Debug.Log ("No Node Network Setup for new participant");
-			yield break;
+			yield return false;
 		}
 
 
-
+		yield break;
 	}
 
 	public IEnumerator FetchHost_IP (string url, string find, string findInt)
@@ -110,7 +110,7 @@ public class CommonNetwork : MonoBehaviour {
 				//UNet bug - cannot use local host IP
 				//if (Host_IP==Network.player.ipAddress)Host_IP="127.0.0.1";
 
-
+				yield return true;
 			} else if (findInt.Length != 0) {
 				//collect integer values
 				int resultant;
@@ -124,7 +124,7 @@ public class CommonNetwork : MonoBehaviour {
 						Debug.LogWarning ("incorrect call");
 
 				} else {
-					yield break;
+					yield return true;
 				}
 			}
 		} else {
@@ -134,7 +134,7 @@ public class CommonNetwork : MonoBehaviour {
 			yield break;
 		}
 
-
+		yield break ;
 	
 	}
 

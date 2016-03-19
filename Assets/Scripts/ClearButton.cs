@@ -12,11 +12,11 @@ public class ClearButton : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (_isLocalPlayer)SetToClear();
+		if (_isLocalPlayer)SetToClear(true);
 	}
-	public void SetToClear ()
+	public void SetToClear (bool setting)
 	{
-		if (GetComponent<MeshRenderer> ().material != green)
+		if (setting & GetComponent<MeshRenderer> ().material != green)
 			GetComponent<MeshRenderer> ().material.color = Color.green;
 		else
 			GetComponent<MeshRenderer> ().material = startupColor;
