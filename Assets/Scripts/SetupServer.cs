@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using UnityEngine.Networking;
 
@@ -12,7 +12,6 @@ public class SetupServer : NetworkBehaviour
 	string find;
 	string findInt;
 	bool connected = false;
-
 
 	public string Host_IP;
 	public int Port;
@@ -48,8 +47,8 @@ public class SetupServer : NetworkBehaviour
 		if (!NetworkClient.active && !NetworkServer.active) {
 
 		
-			//reset values on server to set this machine as hosting
-			//option only if set in textfile as host
+			//reset values on server to set this machine as hosting, update round_id
+			//option available only if set in textfile as host
 			if (commonNetwork.isHost) {
 				if (GUILayout.Button ("Reset ZTree server for hosting from this machine")) {
 
@@ -71,11 +70,11 @@ public class SetupServer : NetworkBehaviour
 					url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Port";
 					StartCoroutine (commonNetwork.FetchHost_IP (url, "", ""));
 					//remove befor production - reset expereiment results - also remvoe from ztree FIXME
-					find = "results";
-					url = "/experiments/delete_results?experiment_id=" + commonNetwork.experiment_id + "&round_id=1";
+					find = "round_id";
+					url = "/experiments/next_round?experiment_id=" + commonNetwork.experiment_id ;
 					StartCoroutine (commonNetwork.FetchHost_IP (url, "", ""));
 					//Debug.LogWarning("Setup Ztree");
-
+				
 				}
 
 				//GUILayout.Label ("Network server is not running.");
@@ -142,9 +141,9 @@ public class SetupServer : NetworkBehaviour
 			if (server) {
 				//different comment for participant = experimenters as do not add to ecperiment listmax
 		//fix for TESTING
-				//url = "/experiments/participant?participant=1&experiment_id=" + commonNetwork.experiment_id;
+				url = "/experiments/participant?participant=1&experiment_id=" + commonNetwork.experiment_id;
 
-				url = "/experiments/participant?participant=0&experiment_id=" + commonNetwork.experiment_id;
+				//url = "/experiments/participant?participant=0&experiment_id=" + commonNetwork.experiment_id;
 				yield return StartCoroutine (commonNetwork.FetchParticipant (url));
 				networkManager.StartHost ();
 				//Debug.Log ("server");
