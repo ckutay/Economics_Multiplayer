@@ -1,0 +1,46 @@
+# Alias Wavefront OBJ File Exported from SketchUp
+# with OBJexporter (c) 2013 TIG
+# Units = meters
+
+mtllib Interior_Fabric_RugArea01.mtl
+
+g AutoSave_Interior_Furn_LivingRoomSuite0920-COM-Interior_Fabric_RugArea0916-467178-DalynRugs-Nairobis90_ivory
+usemtl DalynRugs-Nairobis90_ivory
+v 3.51377555729 0.079375 -1.02812382239
+v 3.51377555729 0.0762 -3.23528269556
+v 3.51377555729 0.0762 -1.02812382239
+v 3.51377555729 0.079375 -3.23528269556
+v 6.74549212961 0.079375 -3.23528269556
+v 6.74549212961 0.0762 -3.23528269556
+v 6.74549212961 0.0762 -1.02812382239
+v 6.74549212961 0.079375 -1.02812382239
+vt 0 1
+vt 1 1
+vt 1 0
+vt 0 0
+vn -1 0 -1.47368228731e-013
+vn 1.47368228731e-013 0 -1
+vn 1 0 1.47368228731e-013
+vn -1.47368228731e-013 0 1
+vn 0 1 0
+f 1/1/1 2/2/1 3/1/1
+f 2/2/1 1/1/1 4/2/1
+f 2/2/2 5/3/2 6/3/2
+f 5/3/2 2/2/2 4/2/2
+f 5/3/3 7/4/3 6/3/3
+f 7/4/3 5/3/3 8/4/3
+f 1/1/4 7/4/4 8/4/4
+f 7/4/4 1/1/4 3/1/4
+f 5/3/5 1/1/5 8/4/5
+f 1/1/5 5/3/5 4/2/5
+
+g AutoSave_Interior_Furn_LivingRoomSuite0920-COM-Interior_Fabric_RugArea0916-467178-SW_6258_Tricorn_Black
+usemtl SW_6258_Tricorn_Black
+vt -102.230610151 149.685806962
+vt 0 149.685806962
+vt -102.230610151 0
+vn 0 -1 0
+f 2/5/6 7/4/6 3/6/6
+f 7/4/6 2/5/6 6/7/6
+
+#EOF
