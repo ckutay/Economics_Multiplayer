@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 using UnityEngine.VR;
@@ -22,7 +22,7 @@ public class ExperimentController : NetworkBehaviour
 	public bool enter;
 	public Transform button;
 	[SyncVar]public bool ikActive;
-
+	[SyncVar]public int round_id;
 	public float transPos;
 	//watiing for url output
 	bool urlReturn;
@@ -178,6 +178,7 @@ public class ExperimentController : NetworkBehaviour
 					//send coin number	
 					canvasText.text = message + " You have selected " + coinManager.currentCoins + " coins";
 					if (coinManager.isFinished & _isLocalPlayer) {
+						round_id=gameManager.round_id;
 						//cannot enter anymore
 						effortCoins = coinManager.currentCoins;
 						button.GetComponent<ClearButton> ()._isLocalPlayer = false;
@@ -201,7 +202,7 @@ public class ExperimentController : NetworkBehaviour
 					//call for result once per participant
 					if (update) {
 						//get result for previous stage for each participant
-						url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + (resultStage) + "&round_id=1&name=Result&participant_id=" + participant_id;
+						url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + (resultStage) + "&round_id="+round_id.ToString()+"&name=Result&participant_id=" + participant_id;
 						//gets result and displays to local canvasText.text
 						StartCoroutine (FetchStage (url, "Results", "", mode));
 						//has wait at end to stop going to end screen too quick
@@ -213,7 +214,6 @@ public class ExperimentController : NetworkBehaviour
 
 					break;
 				case runState.end:
-					//broadcast the local change
 
 					//resultCoins = -1;
 					if ( !resultMessage.Equals ("")) {
@@ -278,7 +278,7 @@ public class ExperimentController : NetworkBehaviour
 
 			if (mode != runState.end) {
 				
-				url = textFileReader.IP_Address + "/experiments/stages?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + stage_number + "&round_id=1";
+				url = textFileReader.IP_Address + "/experiments/stages?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + stage_number + "&round_id="+round_id.ToString();
 				//Debug.Log (url);
 
 				StartCoroutine (FetchStage (url, "type_stage", "stage_number", mode));
@@ -314,11 +314,11 @@ public class ExperimentController : NetworkBehaviour
 
 			try {
 
-
-				//if (_stage_number!=stage_number){
+				//fixMe is this a problem??
+				if (_stage_number!=stage_number){
 				coinManager.player.Cmd_change_currentStage (stage_number, mode);
 				
-				//}
+				}
 			} catch {
 			}
 
@@ -384,7 +384,7 @@ public class ExperimentController : NetworkBehaviour
 							//FIXME
 							if (returnFloat > 0 && !message.Equals ("")) {
 								//set to display result only
-								resultCoins =	coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
+								resultCoins = -1;
 								coinManager.result = true;
 						
 								coinManager.currentCoins -= (int)returnFloat;
@@ -398,20 +398,10 @@ public class ExperimentController : NetworkBehaviour
 								//	Debug.LogWarning (message + returnFloat.ToString ());
 								//stop broadcast
 								message = "";
-								//delay display of final message
-
 								yield return StartCoroutine (WaitForSeconds (.5f));
-							//broadcast new message
-
+								//delay display of final message
 								resultCoins =	coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
-								coinManager.player.Cmd_Set_Text (boxCount, message, resultMessage + resultCoins.ToString ());
-								//wait before get result and update message
-								if ( !resultMessage.Equals ("")) {
-									canvasText.text = resultMessage ;
-									//stop overwrite
-									message = "";
-									resultMessage = "";
-								}
+
 							}
 							
 							yield return true;
