@@ -219,8 +219,7 @@ public class ExperimentController : NetworkBehaviour
 					if ( !resultMessage.Equals ("")) {
 						canvasText.text = resultMessage ;
 						//stop overwrite
-						message = "";
-						resultMessage = "";
+
 					}
 				
 					//no more mesages sent
@@ -385,6 +384,7 @@ public class ExperimentController : NetworkBehaviour
 							if (returnFloat > 0 && !message.Equals ("")) {
 								//set to display result only
 								resultCoins =	coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
+								resultMessage +=  resultCoins.ToString ();
 								coinManager.result = true;
 						
 								coinManager.currentCoins -= (int)returnFloat;
@@ -403,14 +403,14 @@ public class ExperimentController : NetworkBehaviour
 								yield return StartCoroutine (WaitForSeconds (.5f));
 							//broadcast new message
 
-								resultCoins =	coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
-								coinManager.player.Cmd_Set_Text (boxCount, message, resultMessage + resultCoins.ToString ());
+							
+								coinManager.player.Cmd_Set_Text (boxCount, message,resultMessage );
 								//wait before get result and update message
 								if ( !resultMessage.Equals ("")) {
 									canvasText.text = resultMessage ;
 									//stop overwrite
-									message = "";
-									resultMessage = "";
+
+								
 								}
 							}
 							
