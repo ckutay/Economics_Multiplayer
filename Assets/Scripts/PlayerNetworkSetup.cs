@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System;
 using UnityEngine.Networking;
@@ -66,7 +66,6 @@ public class PlayerNetworkSetup : NetworkBehaviour
 		
 
 			while (textFileReader.readHost == null) {
-				//infact stays false as not playernetwork on host - FIXME
 				isHost = false;
 				Debug.LogWarning ("Getting host");
 			}
@@ -344,9 +343,5 @@ public class PlayerNetworkSetup : NetworkBehaviour
 		gameManager.tokenBoxes[_boxCount].GetComponent<ExperimentController>().ikActive = _ikActive;
 
 	}
-	[Command]
-	public void Cmd_update_round_id(int _round_id){
 
-		gameManager.update_round_id(_round_id:);
-	}
 }

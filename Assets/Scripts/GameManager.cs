@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Linq;
 using UnityEngine.Networking;
@@ -12,7 +12,7 @@ public class GameManager : NetworkBehaviour {
 	public GameObject [] tokenBoxes;
 	[SyncVar] [HideInInspector]
 	public int boxCount; 
-	[SyncVar] public int round_id;
+
 	Text canvasText;
 	Text canvasTextUp;
 	public string message="";
@@ -39,8 +39,8 @@ public class GameManager : NetworkBehaviour {
 
 		//testing only
 
-		boxCount = -1;
-		//boxCount = -2;
+		//boxCount = -1;
+		boxCount = -2;
 
 
 	
@@ -81,11 +81,6 @@ public class GameManager : NetworkBehaviour {
 		bool added = NetworkServer.ReplacePlayerForConnection(addPlayer.connectionToClient, newPlayer,0);
 
 
-	}
-
-	public void update_round_id(int _round_id){
-
-		round_id=_round_id;
 	}
 
 

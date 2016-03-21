@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System;
 using UnityEngine.UI;
@@ -13,7 +13,7 @@ public class ParticipantController :NetworkBehaviour
 	public int participant_id;
 	float startHeight = -1.3f;
 	Vector3 sitTargetV;
-	Transform lookAtEffector;
+
 	public enum modes
 	{
 		start,
@@ -61,9 +61,7 @@ public class ParticipantController :NetworkBehaviour
 		rearBone = transform.Find ("mixamorig:Hips");
 		if (rearBone == null)
 			rearBone = transform.Find ("Armature/mixamorig:Hips");
-		//to focus on box
-		lookAtEffector=transform.GetComponentInChildren <SimpleMouseLook>().transform;
-		Debug.Log (lookAtEffector);
+
 		mode = modes.start;
 	
 
@@ -85,7 +83,7 @@ public class ParticipantController :NetworkBehaviour
 				if (sitTarget != null)
 					sitTargetV = sitTarget.transform.position; 
 				sitTargetV.y = startHeight;
-				//break;
+				break;
 		//	alternate walk start
 				if (walkTarget != null) {
 					//start walk
@@ -114,22 +112,19 @@ public class ParticipantController :NetworkBehaviour
 		
 				if (Vector3.Distance (transform.position, target) < 1f) {
 					//move between two effectors, first beside seat, next in front.
-					//find target for sit or you are sitting
-					//Debug.Log("ChangeDir");
+					//find target for sit
 					if (walkTarget == null)
 						mode = modes.sit;
 					
-					animator.SetBool ("Sit", true);
 					target = sitTargetV;
 					walkTarget = null;
+
 
 				}
 
 				break;
 			case modes.sit:
 			//sitting down
-				//look at box to help participant
-
 				animator.SetBool ("Sit", true);
 				animator.SetFloat ("Speed", 0);
 				canvasText.text = "You will contribute effort in the form of coins";
@@ -142,7 +137,7 @@ public class ParticipantController :NetworkBehaviour
 					transform.position = sitTargetV;
 					transform.rotation = sitTarget.transform.rotation;
 				}
-				if (rearBone != null & rearTarget != null& 	!animator.IsInTransition (0)) {
+				if (rearBone != null & rearTarget != null) {
 
 
 
@@ -154,7 +149,9 @@ public class ParticipantController :NetworkBehaviour
 					//Debug.Log(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
 					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < 1f) {
 						mode = modes.sitting;
-						rearBone.transform.position = rearTarget.transform.position;
+						transform.position = sitTargetV;
+						transform.rotation = sitTarget.transform.rotation;
+	
 					}
 				} else {
 					transform.position = sitTargetV;
@@ -164,32 +161,44 @@ public class ParticipantController :NetworkBehaviour
 				break;
 			case modes.sitting:
 				if (sitTarget != null) {
-					//in case start from here
+
 					transform.position = sitTargetV;
 					transform.rotation = sitTarget.transform.rotation;
 				}
-
+				//reset to centre of seatr
+			
+						
+				//if (rearBone != null & rearTarget != null) rearBone.transform.position= rearTarget.transform.position;
+						//transform.LookAt(box.transform);
+						
+						//go to experiment controller
+				mode = modes.run;
+						//setup up experiment controller once
+				exp_cont = null;
+						//error if no coinmanager
 
 				if (coinManager == null) {
 					coinManager = box.GetComponent<CoinManager> ();
 				}
+							
 
 				exp_cont = coinManager.GetComponent<ExperimentController> ();
-			
+							//start experiemnt
+							//exp_cont.mode = ExperimentController.runState.wait;
+			//		exp_cont.box = box;
+							//button = exp_cont.button;
+							//link to canvas - done in playernetwork setup
+							//	exp_cont.canvasText=canvasText;
+
+						
+					
 
 				//Debug.LogWarning(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
-			
-					//has sat
-				lookAtEffector.position =  Vector3.Lerp (lookAtEffector.position ,box.transform.position, .5f);
-					mode = modes.run;
+
 
 				break;
 			case modes.run:
-				
 				rearBone.transform.position = rearTarget.transform.position;
-				if (animator.GetCurrentAnimatorStateInfo(0).IsName("sitting_idle")){
-					if (exp_cont.mode!=ExperimentController.runState.wait)exp_cont.ikActive=true;
-				}
 				break;
 
 			}

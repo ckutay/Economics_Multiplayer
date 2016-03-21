@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using SimpleJSON;
 using System;
@@ -6,15 +6,10 @@ using System;
 public class CommonNetwork : MonoBehaviour {
 	public bool isHost=false;
 	public bool update = true;
-
+	public int experiment_id;
 	public string IP_Address = null;
-
 	// Update is called once per frame
 	TextFileReader textFileReader;
-
-	//will be set up first on server then collected by participatns
-	[SyncVar] public in round_id=-1;
-	[SyncVar]public int experiment_id;
 
 	GameManager gameManager;
 
@@ -36,16 +31,14 @@ public class CommonNetwork : MonoBehaviour {
 		textFileReader = GetComponent<TextFileReader> ();
 		gameManager = GetComponent<GameManager> ();
 
-
 	}
 	void Update ()
 	{
 		if (update) {
-			//get setup values for server request - set gme host
+			//get setup values for server request
 			IP_Address = textFileReader.IP_Address;
 
 			experiment_id = textFileReader.experiment_id;
-		
 			isHost = textFileReader.isHost;
 
 			//set up for expereimenter as ishost
@@ -113,11 +106,7 @@ public class CommonNetwork : MonoBehaviour {
 		if (node != null) {
 			if (find.Length != 0) {
 				//collect string values
-				if (find=="Host_IP")Host_IP = node [find];
-				if (find=="round_id"){
-					round_id=node[find];
-					gameManager.round_id=round_id;
-				}
+				Host_IP = node [find];
 				//UNet bug - cannot use local host IP
 				//if (Host_IP==Network.player.ipAddress)Host_IP="127.0.0.1";
 
@@ -142,10 +131,10 @@ public class CommonNetwork : MonoBehaviour {
 
 			Debug.LogWarning ("no node for " + find + " or " + findInt);
 
-			yield return false;
+			yield break;
 		}
 
-		yield return false ;
+		yield break ;
 	
 	}
 
