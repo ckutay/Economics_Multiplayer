@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 using UnityEngine.UI;
@@ -13,7 +13,7 @@ public class ParticipantController :NetworkBehaviour
 	public int participant_id;
 	float startHeight = -1.3f;
 	Vector3 sitTargetV;
-
+	Transform lookAtEffector;
 	public enum modes
 	{
 		start,
@@ -61,7 +61,8 @@ public class ParticipantController :NetworkBehaviour
 		rearBone = transform.Find ("mixamorig:Hips");
 		if (rearBone == null)
 			rearBone = transform.Find ("Armature/mixamorig:Hips");
-
+		//to focus on box
+		lookAtEffector=gameObject.GetComponentInChildren<SimpleMouseLook>().transform;
 		mode = modes.start;
 	
 
@@ -83,7 +84,7 @@ public class ParticipantController :NetworkBehaviour
 				if (sitTarget != null)
 					sitTargetV = sitTarget.transform.position; 
 				sitTargetV.y = startHeight;
-				break;
+				//break;
 		//	alternate walk start
 				if (walkTarget != null) {
 					//start walk
@@ -99,8 +100,7 @@ public class ParticipantController :NetworkBehaviour
 				animator.SetFloat ("Speed", 0);
 				animator.SetBool ("Sit", false);
 
-			//	exp_cont.isHost = false;
-			
+		
 				break;
 			case modes.walk:
 			//walking use walkTarget for direction the sittarget
@@ -112,19 +112,20 @@ public class ParticipantController :NetworkBehaviour
 		
 				if (Vector3.Distance (transform.position, target) < 1f) {
 					//move between two effectors, first beside seat, next in front.
-					//find target for sit
+					//find target for sit or you are sitting
 					if (walkTarget == null)
 						mode = modes.sit;
-					
+					animator.SetBool ("Sit", true);
 					target = sitTargetV;
 					walkTarget = null;
-
 
 				}
 
 				break;
 			case modes.sit:
 			//sitting down
+				//look at box to help participant
+				lookAtEffector.position=box.transform.position;
 				animator.SetBool ("Sit", true);
 				animator.SetFloat ("Speed", 0);
 				canvasText.text = "You will contribute effort in the form of coins";
@@ -180,7 +181,6 @@ public class ParticipantController :NetworkBehaviour
 				if (coinManager == null) {
 					coinManager = box.GetComponent<CoinManager> ();
 				}
-							
 
 				exp_cont = coinManager.GetComponent<ExperimentController> ();
 							//start experiemnt
@@ -189,9 +189,6 @@ public class ParticipantController :NetworkBehaviour
 							//button = exp_cont.button;
 							//link to canvas - done in playernetwork setup
 							//	exp_cont.canvasText=canvasText;
-
-						
-					
 
 				//Debug.LogWarning(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
 
