@@ -139,8 +139,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				//expController.setupBox = transform.GetComponent<PlayerNetworkSetup> ();
 				expController.participant_id = participant_id;
 				expController.participant = participant;
-
-
+			
 			
 				//first two effectors on chairbox
 				participantController.walkTarget = tokenBox.transform.parent.Find ("WalkTarget").gameObject;
@@ -193,7 +192,9 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	public void Cmd_Get_Authority (int _boxCount)
 	{
 		GameObject box = gameManager.tokenBoxes [_boxCount].gameObject;
-	
+
+		//send round_id to server
+		Cmd_update_round_id (gameManager.round_id);
 		NetworkIdentity nwI = tokenBox.AddComponent<NetworkIdentity> ();
 		nwI.localPlayerAuthority = true;
 		NetworkManager networkManager= GameObject.Find ("NetworkManager").GetComponent<NetworkManager> ();
@@ -347,6 +348,6 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	[Command]
 	public void Cmd_update_round_id(int _round_id){
 
-		gameManager.update_round_id(_round_id:);
+		gameManager.update_round_id(_round_id);
 	}
 }

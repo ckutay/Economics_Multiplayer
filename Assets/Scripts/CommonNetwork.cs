@@ -2,8 +2,8 @@ using UnityEngine;
 using System.Collections;
 using SimpleJSON;
 using System;
-
-public class CommonNetwork : MonoBehaviour {
+using UnityEngine.Networking;
+public class CommonNetwork : NetworkBehaviour {
 	public bool isHost=false;
 	public bool update = true;
 
@@ -13,7 +13,7 @@ public class CommonNetwork : MonoBehaviour {
 	TextFileReader textFileReader;
 
 	//will be set up first on server then collected by participatns
-	[SyncVar] public in round_id=-1;
+	[SyncVar] public int round_id=-1;
 	[SyncVar]public int experiment_id;
 
 	GameManager gameManager;
@@ -96,7 +96,7 @@ public class CommonNetwork : MonoBehaviour {
 
 	public IEnumerator FetchHost_IP (string url, string find, string findInt)
 	{
-		//Debug.Log (Host_IP);
+		//Debug.LogWarning (Host_IP);
 		//get IP and Port numbers - slowly
 		yield return StartCoroutine (WaitForSeconds (.05f));
 
@@ -114,15 +114,13 @@ public class CommonNetwork : MonoBehaviour {
 			if (find.Length != 0) {
 				//collect string values
 				if (find=="Host_IP")Host_IP = node [find];
-				if (find=="round_id"){
-					round_id=node[find];
-					gameManager.round_id=round_id;
-				}
+			
 				//UNet bug - cannot use local host IP
 				//if (Host_IP==Network.player.ipAddress)Host_IP="127.0.0.1";
 
 				yield return true;
 			} else if (findInt.Length != 0) {
+				Debug.LogWarning (findInt);
 				//collect integer values
 				int resultant;
 				if (Int32.TryParse (node [findInt], out resultant)) {
@@ -131,7 +129,12 @@ public class CommonNetwork : MonoBehaviour {
 						Port = resultant;
 					else if (findInt == "max_participants")
 						max_participants = resultant;
-					else
+					else if (findInt=="round_id"){
+						round_id = resultant;
+						gameManager.update_round_id(round_id);
+						Debug.LogWarning ("roundID");
+						Debug.LogWarning (round_id);
+					}else
 						Debug.LogWarning ("incorrect call");
 
 				} else {

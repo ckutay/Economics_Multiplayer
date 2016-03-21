@@ -137,62 +137,48 @@ public class ParticipantController :NetworkBehaviour
 
 					transform.position = sitTargetV;
 					transform.rotation = sitTarget.transform.rotation;
+					sitTarget = null;
 				}
+				//got to sitting if finished sit motion
 				if (rearBone != null & rearTarget != null) {
 
-
-
-				
 
 					//transform.position += relativePos;
 					rearBone.transform.position = Vector3.Lerp (rearBone.transform.position, rearTarget.transform.position, .5f);
 
 					//Debug.Log(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
 					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < 1f) {
-						mode = modes.sitting;
-						transform.position = sitTargetV;
-						transform.rotation = sitTarget.transform.rotation;
+						if (!animator.IsInTransition(0))mode = modes.sitting;
+
 	
 					}
 				} else {
-					transform.position = sitTargetV;
-					transform.rotation = sitTarget.transform.rotation;
-					mode = modes.sitting;
+					
+					if (!animator.IsInTransition(0))mode = modes.sitting;
 				}
 				break;
 			case modes.sitting:
-				if (sitTarget != null) {
-
-					transform.position = sitTargetV;
-					transform.rotation = sitTarget.transform.rotation;
-				}
+				
 				//reset to centre of seatr
+				if (rearBone != null & rearTarget != null) {
+					rearBone.transform.position = rearTarget.transform.position;
+				}
 			
-						
-				//if (rearBone != null & rearTarget != null) rearBone.transform.position= rearTarget.transform.position;
-						//transform.LookAt(box.transform);
-						
-						//go to experiment controller
-				mode = modes.run;
+
 						//setup up experiment controller once
-				exp_cont = null;
+			
 						//error if no coinmanager
 
 				if (coinManager == null) {
 					coinManager = box.GetComponent<CoinManager> ();
 				}
 
-				exp_cont = coinManager.GetComponent<ExperimentController> ();
-							//start experiemnt
-							//exp_cont.mode = ExperimentController.runState.wait;
-			//		exp_cont.box = box;
-							//button = exp_cont.button;
-							//link to canvas - done in playernetwork setup
-							//	exp_cont.canvasText=canvasText;
-
-				//Debug.LogWarning(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
-
-
+				//start experiment when sitting
+				if (animator.GetCurrentAnimatorStateInfo(0).IsName("sitting_idle")){
+					mode = modes.run;
+					exp_cont = coinManager.GetComponent<ExperimentController> ();
+					exp_cont.ikActive = true;
+				}
 				break;
 			case modes.run:
 				rearBone.transform.position = rearTarget.transform.position;

@@ -51,10 +51,14 @@ public class SetupServer : NetworkBehaviour
 			//option available only if set in textfile as host
 			if (commonNetwork.isHost) {
 				if (GUILayout.Button ("Reset ZTree server for hosting from this machine")) {
-
+					//new expereiment results - also remvoe from ztree FIXME
+					findInt = "round_id";
+					string  url = "/experiments/next_round?experiment_id=" + commonNetwork.experiment_id ;
+					StartCoroutine (commonNetwork.FetchHost_IP (url, "", findInt));
+					//Debug.LogWarning("Setup Ztree");
 					find = "Host_IP";
 					//	Debug.Log (Network.player.ipAddress);
-					string url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Host_IP=" + Network.player.ipAddress;
+					url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Host_IP=" + Network.player.ipAddress;
 					StartCoroutine (commonNetwork.FetchHost_IP (url, find, ""));
 					findInt = "Port";
 					url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Port=11000";
@@ -69,11 +73,7 @@ public class SetupServer : NetworkBehaviour
 					find = "Port";
 					url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Port";
 					StartCoroutine (commonNetwork.FetchHost_IP (url, "", ""));
-					//remove befor production - reset expereiment results - also remvoe from ztree FIXME
-					find = "round_id";
-					url = "/experiments/next_round?experiment_id=" + commonNetwork.experiment_id ;
-					StartCoroutine (commonNetwork.FetchHost_IP (url, "", ""));
-					//Debug.LogWarning("Setup Ztree");
+				
 				
 				}
 

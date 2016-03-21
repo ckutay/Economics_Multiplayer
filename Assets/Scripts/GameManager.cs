@@ -67,8 +67,8 @@ public class GameManager : NetworkBehaviour {
 		//	GameObject.FindObjectOfType<AddPlayer>().Cmd_Spawn_Prefab();
 	}
 
-	// called on the server by Addplayer
-	public void ServerRespawn(AddPlayer addPlayer, int boxCount)
+	// called on the server by Addplayer on esrver
+	public void ServerRespawn(AddPlayer addPlayer, int boxCount, int _round_id)
 	{
 		
 		//zero is expereimenter prefab
@@ -79,7 +79,7 @@ public class GameManager : NetworkBehaviour {
 
 		newPlayer.transform.position=pos;
 		bool added = NetworkServer.ReplacePlayerForConnection(addPlayer.connectionToClient, newPlayer,0);
-
+		round_id = _round_id;
 
 	}
 

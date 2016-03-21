@@ -67,7 +67,8 @@ public class AddPlayer : NetworkBehaviour
 		//boxCount plus one to include experimenter
 		//place at 1.2 height
 		Debug.Log(boxCount);
-		GameManager.singleton.ServerRespawn(this, boxCount);
+		//send round_id to server - set in setupserver for each player before dummychar spawned
+		GameManager.singleton.ServerRespawn(this, boxCount, gameManager.round_id);
 
 	/*
 		playerPrefab = gameManager.playerPrefabs [boxCount];
