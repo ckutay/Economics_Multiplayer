@@ -62,7 +62,11 @@ public class ParticipantController :NetworkBehaviour
 		if (rearBone == null)
 			rearBone = transform.Find ("Armature/mixamorig:Hips");
 		//to focus on box
-		lookAtEffector=gameObject.GetComponentInChildren<SimpleMouseLook>().transform;
+		try{
+			lookAtEffector=GetComponentInChildren<SimpleMouseLook>().transform;
+		}catch {
+			lookAtEffector=transform.GetChild(0).GetChild(0).GetComponent<SimpleMouseLook>().transform;
+		}
 		mode = modes.start;
 	
 
@@ -178,10 +182,11 @@ public class ParticipantController :NetworkBehaviour
 					mode = modes.run;
 					exp_cont = coinManager.GetComponent<ExperimentController> ();
 					exp_cont.ikActive = true;
+					rearBone.transform.position = rearTarget.transform.position;
 				}
 				break;
 			case modes.run:
-				rearBone.transform.position = rearTarget.transform.position;
+				
 				break;
 
 			}

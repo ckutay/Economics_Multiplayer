@@ -117,7 +117,7 @@ public class ExperimentController : NetworkBehaviour
 	void Update ()
 	{
 		//wait for updates from api
-
+		round_id = gameManager.round_id;
 		if (urlReturn) {
 			// url calls in rest of update do not work
 			if (isHost && _isLocalPlayer) {
@@ -186,7 +186,9 @@ public class ExperimentController : NetworkBehaviour
 							resultStage = stage_number;
 							//send in result to ZTree
 							canvasText.text = "Wait for others to finish";
-							url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + stage_number + "&participant_id=" + participant_id + "&round_id=1&name=CoinEffort&value=" + coinManager.currentCoins;
+
+							//enter result
+							url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + stage_number + "&participant_id=" + participant_id + "&round_id="+round_id.ToString()+"&name=CoinEffort&value=" + coinManager.currentCoins;
 							StartCoroutine (FetchStage (url, "", "", mode));
 							//not playing anymore
 							ikActive = false;
@@ -215,16 +217,8 @@ public class ExperimentController : NetworkBehaviour
 
 					break;
 				case runState.end:
-
-					//resultCoins = -1;
-					if (!resultMessage.Equals ("")) {
-						//display in coroutine
-						//canvasText.text = resultMessage + resultCoins.ToString ();
-						//stop overwrite
-
-					}
+					
 				
-					//no more mesages sent
 				
 					participantController.mode = ParticipantController.modes.stand;
 					//gameManager.boxCount = -1;
@@ -398,11 +392,13 @@ public class ExperimentController : NetworkBehaviour
 								canvasText.text = message + returnFloat.ToString ();
 								//	Debug.LogWarning (message + returnFloat.ToString ());
 								//stop broadcast
-								message = "";
+								message="";
 								yield return StartCoroutine (WaitForSeconds (.5f));
 								//delay display of final message
-								canvasText.text = resultMessage + resultCoins.ToString ();
-
+								//stop broadcast
+								message="";
+								if(resultMessage!-"")canvasText.text = resultMessage + resultCoins.ToString ();
+								resultMessage = "";
 							}
 							
 							yield return true;

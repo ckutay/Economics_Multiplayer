@@ -96,7 +96,7 @@ public class CommonNetwork : NetworkBehaviour {
 
 	public IEnumerator FetchHost_IP (string url, string find, string findInt)
 	{
-		//Debug.LogWarning (Host_IP);
+		//Debug.LogWarning (url);
 		//get IP and Port numbers - slowly
 		yield return StartCoroutine (WaitForSeconds (.05f));
 
@@ -120,7 +120,8 @@ public class CommonNetwork : NetworkBehaviour {
 
 				yield return true;
 			} else if (findInt.Length != 0) {
-				Debug.LogWarning (findInt);
+				
+				//Debug.LogWarning (findInt);
 				//collect integer values
 				int resultant;
 				if (Int32.TryParse (node [findInt], out resultant)) {
@@ -132,8 +133,8 @@ public class CommonNetwork : NetworkBehaviour {
 					else if (findInt=="round_id"){
 						round_id = resultant;
 						gameManager.update_round_id(round_id);
-						Debug.LogWarning ("roundID");
-						Debug.LogWarning (round_id);
+					
+						//Debug.LogWarning (round_id);
 					}else
 						Debug.LogWarning ("incorrect call");
 

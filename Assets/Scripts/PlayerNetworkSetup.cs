@@ -162,7 +162,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				tokenBox.GetComponent<CoinManager> ().player = this;
 				tokenBox.GetComponent<CoinManager> ()._isLocalPlayer = true;
 				tokenBox.GetComponent<CoinManager> ().SetToClear ();
-	
+				Cmd_update_round_id (gameManager.round_id);
 
 
 			}

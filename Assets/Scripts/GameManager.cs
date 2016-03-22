@@ -39,8 +39,8 @@ public class GameManager : NetworkBehaviour {
 
 		//testing only
 
-		boxCount = -1;
-		//boxCount = -2;
+		//boxCount = -1;
+		boxCount = -2;
 
 
 	
@@ -68,7 +68,7 @@ public class GameManager : NetworkBehaviour {
 	}
 
 	// called on the server by Addplayer on esrver
-	public void ServerRespawn(AddPlayer addPlayer, int boxCount, int _round_id)
+	public void ServerRespawn(AddPlayer addPlayer, int boxCount)
 	{
 		
 		//zero is expereimenter prefab
@@ -79,7 +79,7 @@ public class GameManager : NetworkBehaviour {
 
 		newPlayer.transform.position=pos;
 		bool added = NetworkServer.ReplacePlayerForConnection(addPlayer.connectionToClient, newPlayer,0);
-		round_id = _round_id;
+	
 
 	}
 

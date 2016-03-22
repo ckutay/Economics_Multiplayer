@@ -29,9 +29,10 @@ public class AddPlayer : NetworkBehaviour
 			commonNetwork = GameObject.Find ("NetworkManager").GetComponent<CommonNetwork> ();
 			//Debug.LogWarning(NetworkTransport.IsStarted);
 			if (isLocalPlayer) {
-				//change for TESTING
-				//gameManager.boxCount+=1;
-				if (gameManager.boxCount > commonNetwork.max_participants) {
+				
+
+				//have not updated count yet
+				if (gameManager.boxCount >= commonNetwork.max_participants) {
 					FPCharacterCam.gameObject.SetActive (true);
 					FPCharacterCam.enabled = true;
 					audioListener.enabled = true;
@@ -67,8 +68,8 @@ public class AddPlayer : NetworkBehaviour
 		//boxCount plus one to include experimenter
 		//place at 1.2 height
 		Debug.Log(boxCount);
-		//send round_id to server - set in setupserver for each player before dummychar spawned
-		GameManager.singleton.ServerRespawn(this, boxCount, gameManager.round_id);
+
+		GameManager.singleton.ServerRespawn(this, boxCount);
 
 	/*
 		playerPrefab = gameManager.playerPrefabs [boxCount];
