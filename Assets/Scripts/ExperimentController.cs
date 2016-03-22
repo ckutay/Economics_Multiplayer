@@ -397,7 +397,7 @@ public class ExperimentController : NetworkBehaviour
 								//delay display of final message
 								//stop broadcast
 								message="";
-								if(resultMessage!-"")canvasText.text = resultMessage + resultCoins.ToString ();
+								if(resultMessage!="")canvasText.text = resultMessage + resultCoins.ToString ();
 								resultMessage = "";
 							}
 							
