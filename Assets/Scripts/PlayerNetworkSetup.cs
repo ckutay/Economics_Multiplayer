@@ -12,7 +12,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 
 	[SerializeField] Camera FPCharacterCam;
 	[SerializeField] AudioListener audioListener;
-
+	public bool isHost;
 	GameManager gameManager;
 	float startHeight=-1.2f;
 	CommonNetwork commonNetwork;
@@ -22,15 +22,12 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	string returnParameter;
 	public TextFileReader textFileReader;
 	ExperimentController expController;
-	public int participant;
-	public int participant_id;
+
 	GameObject tokenBox;
 	int boxCount;
-	bool isHost;
 	Text canvasText;
 	Canvas canvasgo;
 
-	SetupServer setupServer;
 
 	// Use this for initialization
 	void Start ()
@@ -39,7 +36,6 @@ public class PlayerNetworkSetup : NetworkBehaviour
 		gameManager = GameObject.Find ("NetworkManager").GetComponent<GameManager> ();
 		commonNetwork = GameObject.Find ("NetworkManager").GetComponent<CommonNetwork> ();
 
-		setupServer = GameObject.Find ("NetworkManager").GetComponent<SetupServer> ();
 		textFileReader = GameObject.Find ("NetworkManager").GetComponent<TextFileReader> ();
 		//has been geenrated
 		if (gameManager.boxCount>-2){
@@ -70,9 +66,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				isHost = false;
 				Debug.LogWarning ("Getting host");
 			}
-			participant = commonNetwork.participant;
 
-			participant_id = commonNetwork.participant_id;
 
 			//random -FIXME
 			if (spawnPoint)
@@ -91,10 +85,16 @@ public class PlayerNetworkSetup : NetworkBehaviour
 		if (isLocalPlayer) {
 			
 	
-			Debug.Log ("Assigned to box " + gameManager.boxCount);
+			//Debug.Log ("Assigned to box " + gameManager.boxCount);
 	
 			//find local canvas inactive
 			canvasgo = gameObject.GetComponentInChildren <Canvas> (true);
+			if (canvasgo==null){
+				//above seems to not worksometimes
+				try{
+					canvasgo=transform.Find("FPCharacterCam/Canvas").GetComponent <Canvas> ();
+			}catch{}
+			}
 			if (canvasgo) {
 				canvasgo.gameObject.SetActive (true);
 				canvasText = canvasgo.transform.Find ("Text").gameObject.GetComponent<Text> ();
@@ -119,7 +119,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				//if no canvas still on fpcontroller for experimenter
 				participantController = gameObject.GetComponent<ParticipantController> ();
 
-				participantController.participant = participant;
+				participantController.participant = commonNetwork.participant;
 				participantController = GetComponent<ParticipantController> ();
 				participantController.box = tokenBox;
 				participantController.canvasText = canvasText;
@@ -128,6 +128,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				expController = tokenBox.GetComponent<ExperimentController> ();
 				expController.participantController = participantController;
 				expController.canvasText = canvasText;
+
 				expController.boxCount = boxCount;
 				//setup authority over coinbox
 				//expController.player = gameObject;
@@ -137,8 +138,8 @@ public class PlayerNetworkSetup : NetworkBehaviour
 
 
 				//expController.setupBox = transform.GetComponent<PlayerNetworkSetup> ();
-				expController.participant_id = participant_id;
-				expController.participant = participant;
+				expController.participant_id = commonNetwork.participant_id;
+				expController.participant = commonNetwork.participant;
 			
 			
 				//first two effectors on chairbox
@@ -235,9 +236,9 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	//single mesge send
 	public void Cmd_Set_Text(int _boxCount, string _message, string _resultMessage){
 
-		ExperimentController exp_cont = gameManager.tokenBoxes [_boxCount].GetComponent<ExperimentController> ();
-		exp_cont.message = _message;
-		exp_cont.resultMessage = _resultMessage;
+		ExperimentNetworking exp_network = gameManager.tokenBoxes [_boxCount].GetComponent<ExperimentNetworking> ();
+		exp_network.message = _message;
+		exp_network.resultMessage = _resultMessage;
 		}
 	//caleld form experiment controller to send update messages from ZTree
 	[Command]
@@ -258,9 +259,9 @@ public class PlayerNetworkSetup : NetworkBehaviour
 			//	catch{}
 			
 			try {
-				ExperimentController exp_cont=go.transform.GetComponent<PlayerNetworkSetup>().tokenBox.transform.GetComponent<ExperimentController>();
-					exp_cont.message=_message;
-				exp_cont.resultMessage=_resultMessage;
+				ExperimentNetworking exp_network=go.transform.GetComponent<PlayerNetworkSetup>().tokenBox.transform.GetComponent<ExperimentNetworking>();
+					exp_network.message=_message;
+				exp_network.resultMessage=_resultMessage;
 
 				//Transform tran = go.transform.Find ("FPCharacterCam").Find ("Canvas");
 

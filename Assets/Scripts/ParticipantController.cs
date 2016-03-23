@@ -168,11 +168,6 @@ public class ParticipantController :NetworkBehaviour
 					rearBone.transform.position = rearTarget.transform.position;
 				}
 			
-
-						//setup up experiment controller once
-			
-						//error if no coinmanager
-
 				if (coinManager == null) {
 					coinManager = box.GetComponent<CoinManager> ();
 				}

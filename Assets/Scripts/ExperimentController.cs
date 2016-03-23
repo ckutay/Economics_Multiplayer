@@ -29,7 +29,6 @@ public class ExperimentController : NetworkBehaviour
 	//first run of answer etc
 	bool update = true;
 	string url;
-	int resultCoins = -1;
 
 	int effortCoins;
 
@@ -47,10 +46,7 @@ public class ExperimentController : NetworkBehaviour
 
 	public bool isHost;
 	public bool waiting;
-	//returns from url
-	string returnString;
-	int returnInt;
-	float returnFloat;
+
 	//public PlayerNetworkSetup setupBox;
 	public GameManager gameManager;
 	public CoinManager coinManager;
@@ -58,12 +54,11 @@ public class ExperimentController : NetworkBehaviour
 	public int boxCount;
 	public Text canvasText;
 
-	[SyncVar] public string message = "";
-	[SyncVar] public string resultMessage = "";
 	string oldMessage;
 
 	//set in playernetworksetup to create network authority
 	public ParticipantController participantController;
+	public ExperimentNetworking experimentNetworking;
 	public bool _isLocalPlayer;
 	//Shared from host
 	//[HideInInspector]
@@ -92,7 +87,7 @@ public class ExperimentController : NetworkBehaviour
 		boxCount = gameManager.boxCount;
 		textFileReader = GameObject.Find ("NetworkManager").GetComponent<TextFileReader> ();
 		button = transform.Find ("Capsule");
-	
+		experimentNetworking = GetComponent<ExperimentNetworking> ();
 		start = true;
 
 	}
@@ -133,7 +128,7 @@ public class ExperimentController : NetworkBehaviour
 				setupHost ();
 	
 
-			if (_isLocalPlayer) {
+			if (_isLocalPlayer & coinManager.player) {
 				//set from the server syncvar
 
 				if (ikBody != null & coinManager.player != null)
@@ -177,19 +172,19 @@ public class ExperimentController : NetworkBehaviour
 						lefthandEffector.transform.position = target;
 						button.GetComponent<ClearButton> ()._isLocalPlayer = true;
 						//send coin number	
-						canvasText.text = message + " You have selected " + coinManager.currentCoins + " coins";
+						canvasText.text = experimentNetworking.message + " You have selected " + coinManager.currentCoins + " coins";
 						if (coinManager.isFinished & _isLocalPlayer) {
 							round_id = gameManager.round_id;
 							//cannot enter anymore
-							effortCoins = coinManager.currentCoins;
+
 							button.GetComponent<ClearButton> ()._isLocalPlayer = false;
 							resultStage = stage_number;
 							//send in result to ZTree
 							canvasText.text = "Wait for others to finish";
 
 							//enter result
-							url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + stage_number + "&participant_id=" + participant_id + "&round_id="+round_id.ToString()+"&name=CoinEffort&value=" + coinManager.currentCoins;
-							StartCoroutine (FetchStage (url, "", "", mode));
+							url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + stage_number + "&participant_id=" + participant_id + "&round_id=" + round_id.ToString () + "&name=CoinEffort&value=" + coinManager.currentCoins;
+							StartCoroutine (experimentNetworking.FetchStage (url, "", "", mode));
 							//not playing anymore
 							ikActive = false;
 							coinManager.player.Cmd_ikActive (boxCount, false);
@@ -207,18 +202,21 @@ public class ExperimentController : NetworkBehaviour
 						//get result for previous stage for each participant
 						url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + (resultStage) + "&round_id=" + round_id.ToString () + "&name=Result&participant_id=" + participant_id;
 						//gets result and displays to local canvasText.text
-						StartCoroutine (FetchStage (url, "Results", "", mode));
-						//has wait at end to stop going to end screen too quick
-						url = "";
+						StartCoroutine (experimentNetworking.FetchStage (url, "Results", "", mode));
 						update = false;
+					}
+						//has wait at end to stop going to end screen too quick
+					if (experimentNetworking.resultMessage != "")
+						canvasText.text = experimentNetworking.message + coinManager.currentCoins.ToString ();
+
 						//FIXME should go to wait, but get message change
 						//mode = runState.wait;
-					}
+					
 
 					break;
 				case runState.end:
 					
-				
+					StartCoroutine (resultShow (experimentNetworking.resultMessage));
 				
 					participantController.mode = ParticipantController.modes.stand;
 					//gameManager.boxCount = -1;
@@ -228,26 +226,31 @@ public class ExperimentController : NetworkBehaviour
 				}
 				//Debug.LogWarning (message);
 			}
-
+			//update effort until end
+			if (mode != runState.end & mode!=runState.answer)
+				effortCoins = coinManager.currentCoins;
 			//works when syncvar gives new braodcast message to player
 		
-			if (_isLocalPlayer & oldMessage != message & !message.Equals ("")) {
-				showMessage (message);
-				oldMessage = message;
+			if (_isLocalPlayer & oldMessage != experimentNetworking.message & !experimentNetworking.message.Equals ("")) {
+				showMessage (experimentNetworking.message);
+				oldMessage = experimentNetworking.message;
 			}
 		
 		}
 
 	}
 
-	//IEnumerator resultMessage(string _message){
-	//make sure see return message before final result
-	//	yield return StartCoroutine (WaitForSeconds (.1f));
-	//	canvasText.text = _message;
-	//reset in class
-	//	message = "";
+	IEnumerator resultShow (string _message)
+	{
+		//make sure see return message before final result
 
-	//}
+		yield return StartCoroutine (WaitForSeconds (1f));
+		//wait before send result
+		int resultCoins =	coinManager.currentCoins;
+		canvasText.text = _message + resultCoins.ToString ();
+		yield return true;
+
+	}
 
 
 	//deals with group messages, not individual ones
@@ -266,38 +269,38 @@ public class ExperimentController : NetworkBehaviour
 		//do not broadcast unless change as some are in waiting
 		int _stage_number = stage_number;
 	
-		string _message = message;
-	//returned data from url
-		if (urlReturn) {
+
+		//returned data from url
+		if (experimentNetworking.urlReturn) {
 
 			if (mode != runState.end) {
 				
 				url = textFileReader.IP_Address + "/experiments/stages?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + stage_number + "&round_id=" + round_id.ToString ();
 				//Debug.Log (url);
 
-				StartCoroutine (FetchStage (url, "type_stage", "stage_number", mode));
+				StartCoroutine (experimentNetworking.FetchStage (url, "type_stage", "stage_number", mode));
 				url = "";
 
 				//move on to next one
-				if (returnInt > 0)
-					stage_number = returnInt;
+				if (experimentNetworking.returnInt > 0)
+					stage_number = experimentNetworking.returnInt;
 				
-				if (returnString == "Request") {
+				if (experimentNetworking.returnString == "Request") {
 					
 
 					mode = runState.ask;
 
-				} else if (returnString == "Response") {
+				} else if (experimentNetworking.returnString == "Response") {
 					
 
 					mode = runState.answer;
 
 
-				} else if (returnString == "Wait") {
+				} else if (experimentNetworking.returnString == "Wait") {
 
 					mode = runState.wait;
 
-				} else if (returnString == "End") {
+				} else if (experimentNetworking.returnString == "End") {
 
 					mode = runState.end;
 
@@ -309,7 +312,7 @@ public class ExperimentController : NetworkBehaviour
 			try {
 
 				//fixMe is this a problem??
-				if (_stage_number != stage_number) {
+				if (_stage_number != stage_number & coinManager.player) {
 					coinManager.player.Cmd_change_currentStage (stage_number, mode);
 				
 				}
@@ -318,136 +321,18 @@ public class ExperimentController : NetworkBehaviour
 
 
 		
+			experimentNetworking.callUpdate ();
 
-			if (message != _message) {
-				//send update of result Message too for when it comes in
-				//empy message not displayed
-				coinManager.player.Cmd_broadcast (message, resultMessage);
-
-			}
 		}
-	}
-
-
-
-
-	IEnumerator FetchStage (string _url, string find, string findInt, runState _mode)
-	{
-		if (_isLocalPlayer) {
-			urlReturn = false;
-			//Debug.LogWarning (url);
-
-			yield return StartCoroutine (WaitForSeconds (.5f));
-			WWW www = new WWW (_url);
-
-			yield return StartCoroutine (WaitForRequest (www));
-			//go to next step when done
-			urlReturn = true;
-			// StringBuilder sb = new StringBuilder();
-			string result = www.text;
-			JSONNode node = JSON.Parse (result);
-			
-			if (node != null) {
-				try {
-					//get stage message
-					message = node ["message"];
-					if (node ["type_stage"] == "End") {
-						resultMessage = message;
-					}
-				} catch {
-					//message = null;
-					//yield return false;
-				}
-		
-				//Debug.Log (message);
-		
-				if (find.Length != 0) {
-
-					returnString = node [find];
-					returnFloat = 0;
-					//	Debug.LogWarning (node);
-					if (find == "Results") {
-						//hack to get results into message- the time delay
-						//mens you cannot pick this up in the state machine
-
-
-						if (float.TryParse (returnString, out returnFloat)) {
-							//get back result from group
-							//when get result show it`
-					
-
-							//FIXME
-							if (returnFloat > 0 && !message.Equals ("")) {
-								//set to display result only
-								resultCoins =	coinManager.maxCoins + 1 - effortCoins + (int)returnFloat;
-								coinManager.result = true;
-						
-								coinManager.currentCoins -= (int)returnFloat;
-
-					
-						
-						
-								//display results - no entered coins show anymore - fixit
-
-								canvasText.text = message + returnFloat.ToString ();
-								//	Debug.LogWarning (message + returnFloat.ToString ());
-								//stop broadcast
-								message="";
-								yield return StartCoroutine (WaitForSeconds (.5f));
-								//delay display of final message
-								//stop broadcast
-								message="";
-								if(resultMessage!="")canvasText.text = resultMessage + resultCoins.ToString ();
-								resultMessage = "";
-							}
-							
-							yield return true;
-					
-							//message for localplayer/tokenbox only
-						}
-
-						yield return true;
-					} else if (Int32.TryParse (node [findInt], out returnInt)) {
-					
-						//Debug.Log(returnInt);
-						yield return true;
-					}
-
-					yield  return true;
-				} else {
-
-					if (Int32.TryParse (node [findInt], out returnInt))
-						yield return true;
-				
-				}
-			} else {
-				//Debug.LogWarning ("No node on api read for " + find + " or " + findInt);
-				//canvas.message = "Errer in stages for experiment: " + node;
-				yield return true;
-
-			}
-		}
-		yield break;
-	}
-
-	IEnumerator setupWait (float num)
-	{
-		yield return WaitForSeconds (num);
-
-
-	}
-
-	public IEnumerator WaitForRequest (WWW www)
-	{
-
-		yield return www;
-
 	}
 
 	IEnumerator WaitForSeconds (float num)
 	{
-		
+
 		yield return new WaitForSeconds (num);
 
 	}
+
+
+
 }

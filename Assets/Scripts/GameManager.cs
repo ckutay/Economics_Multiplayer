@@ -10,7 +10,7 @@ public class GameManager : NetworkBehaviour {
 	public GameObject[] playerPrefabs;
 	static public GameManager singleton;
 	public GameObject [] tokenBoxes;
-	[SyncVar] [HideInInspector]
+	[SyncVar] 
 	public int boxCount; 
 	[SyncVar] public int round_id;
 	Text canvasText;
@@ -35,12 +35,11 @@ public class GameManager : NetworkBehaviour {
 
 			Debug.LogError("The player prefabs on GameManager must be included in the spawnPrefabs in NetworkManager");
 				}
-		//setup  is -1 when assigned experimenter
-
-		//testing only
-
-		//boxCount = -1;
+		//setup  is -2 when assigning experimenter
 		boxCount = -2;
+		//testing only
+	//	boxCount = -1;
+	
 
 
 	
@@ -72,13 +71,13 @@ public class GameManager : NetworkBehaviour {
 	{
 		
 		//zero is expereimenter prefab
-		GameObject playerPrefab = playerPrefabs[boxCount];
+		GameObject playerPrefab = playerPrefabs[1+boxCount];
 		Destroy (addPlayer.gameObject);
 		Vector3 pos = new Vector3 (0, startHeight, 0);
 		GameObject newPlayer = Instantiate<GameObject >( playerPrefab);
 
 		newPlayer.transform.position=pos;
-		bool added = NetworkServer.ReplacePlayerForConnection(addPlayer.connectionToClient, newPlayer,0);
+		NetworkServer.ReplacePlayerForConnection(addPlayer.connectionToClient, newPlayer,0);
 	
 
 	}

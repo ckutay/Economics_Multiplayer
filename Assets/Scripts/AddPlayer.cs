@@ -10,9 +10,7 @@ public class AddPlayer : NetworkBehaviour
 	//not auot player add for different prefabs
 	public TextFileReader textFileReader;
 	GameManager gameManager;
-	NetworkManager networkManager;
 	CommonNetwork commonNetwork;
-	SetupServer setupServer;
 	[SerializeField] Camera FPCharacterCam;
 	[SerializeField] AudioListener audioListener;
 
@@ -24,15 +22,13 @@ public class AddPlayer : NetworkBehaviour
 	{
 		if (isLocalPlayer) {
 			gameManager = GameObject.Find ("NetworkManager").GetComponent<GameManager> ();
-			networkManager = GameObject.Find ("NetworkManager").GetComponent<NetworkManager> ();
-			setupServer = GameObject.Find ("NetworkManager").GetComponent<SetupServer> ();
 			commonNetwork = GameObject.Find ("NetworkManager").GetComponent<CommonNetwork> ();
 			//Debug.LogWarning(NetworkTransport.IsStarted);
 			if (isLocalPlayer) {
 				
 
 				//have not updated count yet
-				if (gameManager.boxCount >= commonNetwork.max_participants) {
+				if (gameManager.boxCount > commonNetwork.max_participants) {
 					FPCharacterCam.gameObject.SetActive (true);
 					FPCharacterCam.enabled = true;
 					audioListener.enabled = true;
@@ -48,9 +44,9 @@ public class AddPlayer : NetworkBehaviour
 				} else if (gameManager.boxCount > -2) {
 					//if has received box count
 
-					//prefabs stored on GameManager but also registered on Newtwork Manager
+					//prefabs stored on GameManager but also registered on Network Manager - add 
 
-					Cmd_Spawn_Prefab (1 + gameManager.boxCount);
+					Cmd_Spawn_Prefab (gameManager.boxCount);
 			
 					//is destroyed after this
 					//FIXME - needed?
@@ -66,27 +62,12 @@ public class AddPlayer : NetworkBehaviour
 	public void Cmd_Spawn_Prefab (int boxCount)
 	{
 		//boxCount plus one to include experimenter
-		//place at 1.2 height
-		Debug.Log(boxCount);
+
+		//Debug.Log(boxCount);
 
 		GameManager.singleton.ServerRespawn(this, boxCount);
 
-	/*
-		playerPrefab = gameManager.playerPrefabs [boxCount];
 	
-		GameObject newPlayer = Instantiate<GameObject> (playerPrefab);
-		Destroy(gameObject);
-
-		bool added = NetworkServer.ReplacePlayerForConnection (this.connectionToClient, newPlayer, 0);
-
-		Debug.LogWarning (added);
-		//setup up new player
-	
-		PlayerNetworkSetup playerNetworkSetup = newPlayer.GetComponent<PlayerNetworkSetup> ();
-		playerNetworkSetup.Rpc_set_prefab ();
-		//setup instantiated prefab
-
-*/
 
 	}
 
