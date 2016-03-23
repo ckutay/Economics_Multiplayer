@@ -10,7 +10,7 @@ public class GameManager : NetworkBehaviour {
 	public GameObject[] playerPrefabs;
 	static public GameManager singleton;
 	public GameObject [] tokenBoxes;
-	[SyncVar] [HideInInspector]
+	[SyncVar] 
 	public int boxCount; 
 	[SyncVar] public int round_id;
 	Text canvasText;
@@ -39,7 +39,7 @@ public class GameManager : NetworkBehaviour {
 
 		//testing only
 
-		//boxCount = -1;
+	//	boxCount = -1;
 		boxCount = -2;
 
 
