@@ -87,12 +87,13 @@ public class ExperimentNetworking : NetworkBehaviour
 							//get back result from group
 					
 					
-						if (!coinManager.result & returnFloat > 0 && !message.Equals ("")) {
+						if (!coinManager.result & returnFloat > 0 ) {
 								//set to display result only
 								resultCoins =	 (int)returnFloat;
 							//display returned amount and no effort coins
 								coinManager.result = true;
 								coinManager.currentCoins -= (int)returnFloat;
+							resultMessage+=(coinManager.maxCoins+1-coinManager.currentCoins).ToString();
 
 							}
 

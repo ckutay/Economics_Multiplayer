@@ -206,19 +206,22 @@ public class ExperimentController : NetworkBehaviour
 						update = false;
 					}
 						//has wait at end to stop going to end screen too quick
-					if (experimentNetworking.resultMessage != "")
+					if (!experimentNetworking.message.Equals ("")){
 						canvasText.text = experimentNetworking.message + coinManager.currentCoins.ToString ();
-
+					Debug.LogWarning (experimentNetworking.message.ToString()+ coinManager.currentCoins.ToString ());
+						}
 						//FIXME should go to wait, but get message change
 						//mode = runState.wait;
 					
 
 					break;
 				case runState.end:
-					
-					StartCoroutine (resultShow (experimentNetworking.resultMessage));
+					if (!experimentNetworking.resultMessage.Equals ("")) {
+						Debug.LogWarning (experimentNetworking.resultMessage.ToString ());
+						StartCoroutine (resultShow (experimentNetworking.resultMessage));
 				
-					participantController.mode = ParticipantController.modes.stand;
+						participantController.mode = ParticipantController.modes.stand;
+					}
 					//gameManager.boxCount = -1;
 
 
@@ -240,14 +243,14 @@ public class ExperimentController : NetworkBehaviour
 
 	}
 
-	IEnumerator resultShow (string _message)
+	IEnumerator resultShow (string _resultMessage)
 	{
 		//make sure see return message before final result
 
 		yield return StartCoroutine (WaitForSeconds (1f));
 		//wait before send result
-		int resultCoins =	coinManager.currentCoins;
-		canvasText.text = _message + resultCoins.ToString ();
+	
+		canvasText.text = _resultMessage;
 		yield return true;
 
 	}

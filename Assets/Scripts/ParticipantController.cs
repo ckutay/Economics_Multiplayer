@@ -103,8 +103,10 @@ public class ParticipantController :NetworkBehaviour
 			//end of game
 				animator.SetFloat ("Speed", 0);
 				animator.SetBool ("Sit", false);
-
-		
+				if (sitTarget == null)
+					sitTargetV = sitTarget.transform.position; 
+				sitTargetV.y = startHeight;
+				transform.position = sitTargetV;
 				break;
 			case modes.walk:
 			//walking use walkTarget for direction the sittarget
@@ -137,11 +139,11 @@ public class ParticipantController :NetworkBehaviour
 			// use box target to back of chair for walk direction
 
 			//FIXME set standing at sittarget position
-				if (sitTarget != null) {
+				if (sitTargetV.y>0) {
 
 					transform.position = sitTargetV;
 					transform.rotation = sitTarget.transform.rotation;
-					sitTarget = null;
+					sitTargetV.y = -1;
 				}
 				//got to sitting if finished sit motion
 				if (rearBone != null & rearTarget != null) {

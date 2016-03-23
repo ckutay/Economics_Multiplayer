@@ -28,7 +28,7 @@ public class AddPlayer : NetworkBehaviour
 				
 
 				//have not updated count yet
-				if (gameManager.boxCount > commonNetwork.max_participants) {
+				if (gameManager.boxCount >= commonNetwork.max_participants) {
 					FPCharacterCam.gameObject.SetActive (true);
 					FPCharacterCam.enabled = true;
 					audioListener.enabled = true;
