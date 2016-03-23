@@ -29,9 +29,8 @@ public class ExperimentController : NetworkBehaviour
 	//first run of answer etc
 	bool update = true;
 	string url;
-	int resultCoins = -1;
 
-	int effortCoins;
+
 
 	public enum runState
 	{
@@ -59,7 +58,7 @@ public class ExperimentController : NetworkBehaviour
 
 	//set in playernetworksetup to create network authority
 	public ParticipantController participantController;
-	ExperimentNetworking experimentNetworking;
+	public ExperimentNetworking experimentNetworking;
 	public bool _isLocalPlayer;
 	//Shared from host
 	//[HideInInspector]
@@ -177,7 +176,7 @@ public class ExperimentController : NetworkBehaviour
 						if (coinManager.isFinished & _isLocalPlayer) {
 							round_id = gameManager.round_id;
 							//cannot enter anymore
-							effortCoins = coinManager.currentCoins;
+
 							button.GetComponent<ClearButton> ()._isLocalPlayer = false;
 							resultStage = stage_number;
 							//send in result to ZTree
@@ -193,6 +192,7 @@ public class ExperimentController : NetworkBehaviour
 							mode = runState.wait;
 							//cannot use button
 							button.GetComponent<ClearButton> ().SetToClear (false);
+							if (experimentNetworking.urlReturn)canvasText.text = experimentNetworking.message + experimentNetworking.returnFloat.ToString ();
 						}
 					}
 					break;
@@ -204,12 +204,14 @@ public class ExperimentController : NetworkBehaviour
 						url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + (resultStage) + "&round_id=" + round_id.ToString () + "&name=Result&participant_id=" + participant_id;
 						//gets result and displays to local canvasText.text
 						StartCoroutine (experimentNetworking.FetchStage (url, "Results", "", mode));
-						//has wait at end to stop going to end screen too quick
-						url = "";
 						update = false;
+					}
+						//has wait at end to stop going to end screen too quick
+						if(experimentNetworking.resultMessage!="")canvasText.text = experimentNetworking.resultMessage + experimentNetworking.resultCoins.ToString ();
+
 						//FIXME should go to wait, but get message change
 						//mode = runState.wait;
-					}
+					
 
 					break;
 				case runState.end:

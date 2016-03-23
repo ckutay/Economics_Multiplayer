@@ -128,6 +128,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				expController = tokenBox.GetComponent<ExperimentController> ();
 				expController.participantController = participantController;
 				expController.canvasText = canvasText;
+				expController.experimentNetworking.canvasText = canvasText;
 				expController.boxCount = boxCount;
 				//setup authority over coinbox
 				//expController.player = gameObject;

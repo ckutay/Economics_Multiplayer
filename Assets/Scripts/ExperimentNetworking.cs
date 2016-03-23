@@ -33,7 +33,8 @@ public class ExperimentNetworking : NetworkBehaviour
 	}
 
 	void Update(){
-		_message =message;
+		effortCoins = coinManager.currentCoins;
+
 		if (message != _message) {
 			//send update of result Message too for when it comes in
 			//empy message not displayed
@@ -57,7 +58,7 @@ public class ExperimentNetworking : NetworkBehaviour
 			// StringBuilder sb = new StringBuilder();
 			string result = www.text;
 			JSONNode node = JSON.Parse (result);
-
+		resultMessage = "";
 			if (node != null) {
 				try {
 					//get stage message
