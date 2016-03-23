@@ -91,7 +91,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 		if (isLocalPlayer) {
 			
 	
-			Debug.Log ("Assigned to box " + gameManager.boxCount);
+			//Debug.Log ("Assigned to box " + gameManager.boxCount);
 	
 			//find local canvas inactive
 			canvasgo = gameObject.GetComponentInChildren <Canvas> (true);
@@ -235,9 +235,9 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	//single mesge send
 	public void Cmd_Set_Text(int _boxCount, string _message, string _resultMessage){
 
-		ExperimentController exp_cont = gameManager.tokenBoxes [_boxCount].GetComponent<ExperimentController> ();
-		exp_cont.message = _message;
-		exp_cont.resultMessage = _resultMessage;
+		ExperimentNetworking exp_network = gameManager.tokenBoxes [_boxCount].GetComponent<ExperimentNetworking> ();
+		exp_network.message = _message;
+		exp_network.resultMessage = _resultMessage;
 		}
 	//caleld form experiment controller to send update messages from ZTree
 	[Command]
@@ -258,9 +258,9 @@ public class PlayerNetworkSetup : NetworkBehaviour
 			//	catch{}
 			
 			try {
-				ExperimentController exp_cont=go.transform.GetComponent<PlayerNetworkSetup>().tokenBox.transform.GetComponent<ExperimentController>();
-					exp_cont.message=_message;
-				exp_cont.resultMessage=_resultMessage;
+				ExperimentNetworking exp_network=go.transform.GetComponent<PlayerNetworkSetup>().tokenBox.transform.GetComponent<ExperimentNetworking>();
+					exp_network.message=_message;
+				exp_network.resultMessage=_resultMessage;
 
 				//Transform tran = go.transform.Find ("FPCharacterCam").Find ("Canvas");
 

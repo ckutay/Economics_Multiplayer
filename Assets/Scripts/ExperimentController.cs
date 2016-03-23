@@ -47,10 +47,7 @@ public class ExperimentController : NetworkBehaviour
 
 	public bool isHost;
 	public bool waiting;
-	//returns from url
-	string returnString;
-	int returnInt;
-	float returnFloat;
+
 	//public PlayerNetworkSetup setupBox;
 	public GameManager gameManager;
 	public CoinManager coinManager;
@@ -278,25 +275,25 @@ public class ExperimentController : NetworkBehaviour
 				url = "";
 
 				//move on to next one
-				if (returnInt > 0)
-					stage_number = returnInt;
+				if (experimentNetworking.returnInt > 0)
+					stage_number = experimentNetworking.returnInt;
 				
-				if (returnString == "Request") {
+				if (experimentNetworking.returnString == "Request") {
 					
 
 					mode = runState.ask;
 
-				} else if (returnString == "Response") {
+				} else if (experimentNetworking.returnString == "Response") {
 					
 
 					mode = runState.answer;
 
 
-				} else if (returnString == "Wait") {
+				} else if (experimentNetworking.returnString == "Wait") {
 
 					mode = runState.wait;
 
-				} else if (returnString == "End") {
+				} else if (experimentNetworking.returnString == "End") {
 
 					mode = runState.end;
 
