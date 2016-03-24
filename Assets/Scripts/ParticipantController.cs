@@ -169,7 +169,7 @@ public class ParticipantController :NetworkBehaviour
 				if (rearBone != null & rearTarget != null) {
 					rearBone.transform.position = rearTarget.transform.position;
 				}
-			
+				Debug.LogWarning (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position));
 				if (coinManager == null) {
 					coinManager = box.GetComponent<CoinManager> ();
 				}
