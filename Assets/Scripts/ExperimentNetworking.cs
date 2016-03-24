@@ -57,7 +57,7 @@ public class ExperimentNetworking : NetworkBehaviour
 			// StringBuilder sb = new StringBuilder();
 			string result = www.text;
 			JSONNode node = JSON.Parse (result);
-		resultMessage = "";
+
 			if (node != null) {
 				try {
 					//get stage message
@@ -82,7 +82,7 @@ public class ExperimentNetworking : NetworkBehaviour
 						//hack to get results into message- the time delay
 						//mens you cannot pick this up in the state machine
 
-
+				
 						if (float.TryParse (returnString, out returnFloat)) {
 							//get back result from group submissions
 					
@@ -93,7 +93,7 @@ public class ExperimentNetworking : NetworkBehaviour
 							//display returned amount and no effort coins
 								coinManager.result = true;
 								coinManager.currentCoins -= resultCoins;
-							resultMessage+=(coinManager.maxCoins+1-coinManager.currentCoins).ToString();
+							resultMessage="The round is finished, your final coin count is: "+(coinManager.maxCoins+1-coinManager.currentCoins).ToString();
 
 							}
 						urlReturn = true;

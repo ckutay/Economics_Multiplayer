@@ -139,11 +139,11 @@ public class ParticipantController :NetworkBehaviour
 			// use box target to back of chair for walk direction
 
 			//FIXME set standing at sittarget position
-				if (sitTargetV.y>0) {
+				if (sitTargetV.y>-20) {
 
 					transform.position = sitTargetV;
 					transform.rotation = sitTarget.transform.rotation;
-					sitTargetV.y = -1;
+					sitTargetV.y = -100;
 				}
 				//got to sitting if finished sit motion
 				if (rearBone != null & rearTarget != null) {
@@ -153,14 +153,14 @@ public class ParticipantController :NetworkBehaviour
 					rearBone.transform.position = Vector3.Lerp (rearBone.transform.position, rearTarget.transform.position, .5f);
 
 					//Debug.Log(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
-					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < 1f) {
-						if (!animator.IsInTransition(0))mode = modes.sitting;
+					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < .5f) {
+						if (animator.GetCurrentAnimatorStateInfo(0).IsName("sitting_idle"))mode = modes.sitting;
 
 	
 					}
 				} else {
 					
-					if (!animator.IsInTransition(0))mode = modes.sitting;
+					if (animator.GetCurrentAnimatorStateInfo(0).IsName("sitting_idle"))mode = modes.sitting;
 				}
 				break;
 			case modes.sitting:
