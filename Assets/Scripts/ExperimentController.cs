@@ -203,25 +203,27 @@ public class ExperimentController : NetworkBehaviour
 						StartCoroutine (experimentNetworking.FetchStage (url, "Results", "", mode));
 						update = false;
 					}
-						//has wait at end to stop going to end screen too quick
-					if ( !experimentNetworking.message.Equals ("")){
-						canvasText.text = experimentNetworking.message + experimentNetworking.resultCoins.ToString ();
-						Debug.LogWarning (experimentNetworking.message.ToString()+ experimentNetworking.resultCoins.ToString ());
-						}
+				
 						//FIXME should go to wait, but get message change
 						//mode = runState.wait;
 					
 
 					break;
 				case runState.end:
+					
+					if ( !experimentNetworking.message.Equals ("")){
+						canvasText.text = experimentNetworking.message + experimentNetworking.resultCoins.ToString ();
+						experimentNetworking.message = "";
+					}
+
 					if ( !experimentNetworking.resultMessage.Equals ("")) {
-						Debug.LogWarning (experimentNetworking.resultMessage.ToString ());
+
 						StartCoroutine (resultShow (experimentNetworking.resultMessage));
-				
-						participantController.mode = ParticipantController.modes.stand;
+						experimentNetworking.resultMessage = "";
+
 					}
 					//gameManager.boxCount = -1;
-
+					participantController.mode = ParticipantController.modes.stand;
 
 					break;
 				}
@@ -245,7 +247,7 @@ public class ExperimentController : NetworkBehaviour
 	{
 		//make sure see return message before final result
 
-		yield return StartCoroutine (WaitForSeconds (1f));
+		yield return StartCoroutine (WaitForSeconds (5f));
 		//wait before send result
 	
 		canvasText.text = _resultMessage;

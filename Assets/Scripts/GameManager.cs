@@ -36,9 +36,9 @@ public class GameManager : NetworkBehaviour {
 			Debug.LogError("The player prefabs on GameManager must be included in the spawnPrefabs in NetworkManager");
 				}
 		//setup  is -2 when assigning experimenter
-		//boxCount = -2;
+		boxCount = -2;
 		//testing only
-		boxCount = -1;
+	//	boxCount = -1;
 	
 
 

@@ -33,7 +33,7 @@ public class ParticipantController :NetworkBehaviour
 	public GameObject walkTarget;
 	public GameObject sitTarget = null;
 	public GameObject rearTarget;
-	 
+	Quaternion transformRotation;
 	public Vector3 target;
 	GameManager gameManager;
 	public Transform rearBone;
@@ -43,7 +43,7 @@ public class ParticipantController :NetworkBehaviour
 	Animator animator;
 	public NetworkConnection conn;
 	GameObject head;
-	Quaternion relrotation;
+
 	Vector3 relativePos;
 	//from playernewtork setup
 	public Text canvasText;
@@ -113,14 +113,15 @@ public class ParticipantController :NetworkBehaviour
 
 				relativePos = target - transform.position;
 			//relativePos.y=transform.position.y;
-				relrotation = Quaternion.LookRotation (relativePos);
-				transform.rotation = Quaternion.Lerp (transform.rotation, relrotation, .5f);	
+				transformRotation = Quaternion.LookRotation (relativePos);
+				transform.rotation = Quaternion.Lerp (transform.rotation, transformRotation , .5f);	
 		
-				if (Vector3.Distance (transform.position, target) < 1f) {
+				if ((Vector3.Distance (transform.position, target) < 1f ) && (transform.rotation.eulerAngles.y-transformRotation.eulerAngles.y<1f)) {
 					//move between two effectors, first beside seat, next in front.
 					//find target for sit or you are sitting
 					if (walkTarget == null)
 						mode = modes.sit;
+					transformRotation = sitTarget.transform.rotation;
 					animator.SetBool ("Sit", true);
 					target = sitTargetV;
 					walkTarget = null;
@@ -139,12 +140,12 @@ public class ParticipantController :NetworkBehaviour
 			// use box target to back of chair for walk direction
 
 			//FIXME set standing at sittarget position
-				if (sitTargetV.y>-100) {
+			
 
 					transform.position = sitTargetV;
 					transform.rotation = sitTarget.transform.rotation;
-					sitTargetV.y = -100;
-				}
+
+
 				//got to sitting if finished sit motion
 				if (rearBone != null & rearTarget != null) {
 
@@ -169,7 +170,8 @@ public class ParticipantController :NetworkBehaviour
 				if (rearBone != null & rearTarget != null) {
 					rearBone.transform.position = rearTarget.transform.position;
 				}
-			
+				transform.position = sitTargetV;
+				transform.rotation = sitTarget.transform.rotation;
 				if (coinManager == null) {
 					coinManager = box.GetComponent<CoinManager> ();
 				}
@@ -179,11 +181,11 @@ public class ParticipantController :NetworkBehaviour
 					mode = modes.run;
 					exp_cont = coinManager.GetComponent<ExperimentController> ();
 					exp_cont.ikActive = true;
-					rearBone.transform.position = rearTarget.transform.position;
+				
 				}
 				break;
 			case modes.run:
-				
+				//rearBone.transform.position = rearTarget.transform.position;
 				break;
 
 			}
