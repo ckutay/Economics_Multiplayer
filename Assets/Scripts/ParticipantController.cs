@@ -140,12 +140,12 @@ public class ParticipantController :NetworkBehaviour
 			// use box target to back of chair for walk direction
 
 			//FIXME set standing at sittarget position
-				if (sitTargetV.y>-20) {
+			
 
 					transform.position = sitTargetV;
 					transform.rotation = sitTarget.transform.rotation;
-					sitTargetV.y = -100;
-				}
+
+
 				//got to sitting if finished sit motion
 				if (rearBone != null & rearTarget != null) {
 
@@ -170,7 +170,8 @@ public class ParticipantController :NetworkBehaviour
 				if (rearBone != null & rearTarget != null) {
 					rearBone.transform.position = rearTarget.transform.position;
 				}
-			
+				transform.position = sitTargetV;
+				transform.rotation = sitTarget.transform.rotation;
 				if (coinManager == null) {
 					coinManager = box.GetComponent<CoinManager> ();
 				}
@@ -184,7 +185,7 @@ public class ParticipantController :NetworkBehaviour
 				}
 				break;
 			case modes.run:
-				rearBone.transform.position = rearTarget.transform.position;
+				//rearBone.transform.position = rearTarget.transform.position;
 				break;
 
 			}

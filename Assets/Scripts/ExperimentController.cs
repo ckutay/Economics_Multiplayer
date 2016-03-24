@@ -219,7 +219,7 @@ public class ExperimentController : NetworkBehaviour
 					if ( !experimentNetworking.resultMessage.Equals ("")) {
 
 						StartCoroutine (resultShow (experimentNetworking.resultMessage));
-				
+						experimentNetworking.resultMessage = "";
 
 					}
 					//gameManager.boxCount = -1;
@@ -247,7 +247,7 @@ public class ExperimentController : NetworkBehaviour
 	{
 		//make sure see return message before final result
 
-		yield return StartCoroutine (WaitForSeconds (1f));
+		yield return StartCoroutine (WaitForSeconds (5f));
 		//wait before send result
 	
 		canvasText.text = _resultMessage;
