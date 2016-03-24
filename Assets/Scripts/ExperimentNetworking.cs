@@ -53,7 +53,7 @@ public class ExperimentNetworking : NetworkBehaviour
 
 			yield return StartCoroutine (WaitForRequest (www));
 			//go to next step when done
-			urlReturn = true;
+			
 			// StringBuilder sb = new StringBuilder();
 			string result = www.text;
 			JSONNode node = JSON.Parse (result);
@@ -68,7 +68,7 @@ public class ExperimentNetworking : NetworkBehaviour
 						message = node ["message"];
 				} catch {
 					//message = null;
-					//yield return false;
+					
 				}
 
 				//Debug.Log (message);
@@ -84,45 +84,47 @@ public class ExperimentNetworking : NetworkBehaviour
 
 
 						if (float.TryParse (returnString, out returnFloat)) {
-							//get back result from group
+							//get back result from group submissions
 					
 					
-						if (!coinManager.result & returnFloat > 0 ) {
+						if (!coinManager.result & returnFloat >= 0 ) {
 								//set to display result only
 								resultCoins =	 (int)returnFloat;
 							//display returned amount and no effort coins
 								coinManager.result = true;
-								coinManager.currentCoins -= (int)returnFloat;
+								coinManager.currentCoins -= resultCoins;
 							resultMessage+=(coinManager.maxCoins+1-coinManager.currentCoins).ToString();
 
 							}
-
+						urlReturn = true;
 							yield return true;
 
 							//message for localplayer/tokenbox only
 						}
-
+					urlReturn = true;
 						yield return true;
 					} else if (Int32.TryParse (node [findInt], out returnInt)) {
-
+					urlReturn = true;
 						//Debug.Log(returnInt);
 						yield return true;
 					}
-
+				urlReturn = true;
 					yield  return true;
 				} else {
 
-					if (Int32.TryParse (node [findInt], out returnInt))
+				if (Int32.TryParse (node [findInt], out returnInt)){
+					urlReturn = true;
 						yield return true;
-
+				}
 				}
 			} else {
 				//Debug.LogWarning ("No node on api read for " + find + " or " + findInt);
 				//canvas.message = "Errer in stages for experiment: " + node;
-				yield return true;
+			urlReturn = true;
+			yield return true;
 
 			}
-
+		urlReturn = true;
 		yield break;
 	}
 

@@ -24,8 +24,7 @@ public class ExperimentController : NetworkBehaviour
 	[SyncVar]public bool ikActive;
 	[SyncVar]public int round_id;
 	public float transPos;
-	//watiing for url output
-	bool urlReturn;
+
 	//first run of answer etc
 	bool update = true;
 	string url;
@@ -77,7 +76,6 @@ public class ExperimentController : NetworkBehaviour
 	{
 		//start at stage 0
 
-		urlReturn = true;
 		update = true;
 
 		coinManager = (CoinManager)GetComponent<CoinManager> ();
@@ -113,7 +111,7 @@ public class ExperimentController : NetworkBehaviour
 	{
 		//wait for updates from api
 		round_id = gameManager.round_id;
-		if (urlReturn) {
+		if (experimentNetworking.urlReturn) {
 			// url calls in rest of update do not work
 			if (isHost && _isLocalPlayer) {
 				//find next step and message
@@ -206,9 +204,9 @@ public class ExperimentController : NetworkBehaviour
 						update = false;
 					}
 						//has wait at end to stop going to end screen too quick
-					if (!experimentNetworking.message.Equals ("")){
-						canvasText.text = experimentNetworking.message + coinManager.currentCoins.ToString ();
-					Debug.LogWarning (experimentNetworking.message.ToString()+ coinManager.currentCoins.ToString ());
+					if ( !experimentNetworking.message.Equals ("")){
+						canvasText.text = experimentNetworking.message + experimentNetworking.resultCoins.ToString ();
+						Debug.LogWarning (experimentNetworking.message.ToString()+ experimentNetworking.resultCoins.ToString ());
 						}
 						//FIXME should go to wait, but get message change
 						//mode = runState.wait;
@@ -216,7 +214,7 @@ public class ExperimentController : NetworkBehaviour
 
 					break;
 				case runState.end:
-					if (!experimentNetworking.resultMessage.Equals ("")) {
+					if ( !experimentNetworking.resultMessage.Equals ("")) {
 						Debug.LogWarning (experimentNetworking.resultMessage.ToString ());
 						StartCoroutine (resultShow (experimentNetworking.resultMessage));
 				
