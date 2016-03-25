@@ -219,7 +219,7 @@ public class ExperimentController : NetworkBehaviour
 					if ( !experimentNetworking.resultMessage.Equals ("")) {
 
 						StartCoroutine (resultShow (experimentNetworking.resultMessage));
-						experimentNetworking.resultMessage = "";
+
 
 					}
 					//gameManager.boxCount = -1;

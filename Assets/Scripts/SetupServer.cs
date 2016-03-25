@@ -81,7 +81,7 @@ public class SetupServer : NetworkBehaviour
 
 				//textfile sets up server to avoid oculus need to select as server
 
-				server = GUILayout.Toggle (server, "Run as host or client");
+				server = GUILayout.Toggle (server, "Run as host");
 				//find host IP and max_participant number
 			
 				if (GUILayout.Button ("Start/Join Server")) { 

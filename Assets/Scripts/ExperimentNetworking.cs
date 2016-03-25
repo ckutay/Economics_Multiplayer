@@ -93,7 +93,7 @@ public class ExperimentNetworking : NetworkBehaviour
 							//display returned amount and no effort coins
 								coinManager.result = true;
 								coinManager.currentCoins -= resultCoins;
-							resultMessage="The round is finished, your final coin count is: "+(coinManager.maxCoins+1-coinManager.currentCoins).ToString();
+							resultMessage+=(coinManager.maxCoins+1-coinManager.currentCoins).ToString();
 
 							}
 						urlReturn = true;
