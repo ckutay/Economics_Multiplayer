@@ -173,9 +173,11 @@ public class ParticipantController :NetworkBehaviour
 			case modes.sitting:
 
 				//controler sits over centre of seat
+				sitTargetV=rearTarget.transform.position;
+				sitTargetV.y=startHeight;
 
 				if ( rearTarget != null) {
-					transform.position = rearTarget.transform.position;
+					transform.position = sitTargetV;
 				}
 
 				if (coinManager == null) {

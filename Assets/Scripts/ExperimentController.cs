@@ -119,11 +119,7 @@ public class ExperimentController : NetworkBehaviour
 				//message etc is send on Command on server and to all players
 				//the syncvar to localplayer
 			}
-			//put here so overwrite with local message
-			if (_isLocalPlayer & oldMessage != experimentNetworking.message & !experimentNetworking.message.Equals ("")& !(experimentNetworking.message=="")) {
-				canvasText.text = experimentNetworking.message;
-				oldMessage = experimentNetworking.message;
-			}
+
 
 			//not working in start unless set to active later  as no tokenbox- then not visible for collection tokenboxes FIXME
 			if (start)
@@ -200,7 +196,7 @@ public class ExperimentController : NetworkBehaviour
 
 				case runState.answer:
 					//call for result once per participant
-					coinManager.result=True;
+					coinManager.result = True;
 					if (update) {
 						//get result for previous stage for each participant
 						url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + (resultStage) + "&round_id=" + round_id.ToString () + "&name=Result&participant_id=" + participant_id;
@@ -216,13 +212,13 @@ public class ExperimentController : NetworkBehaviour
 					break;
 				case runState.end:
 					
-					if (update & !experimentNetworking.message.Equals ("") & !(experimentNetworking.message=="")){
+					if (update & !experimentNetworking.message.Equals ("") & !(experimentNetworking.message == "")) {
 						canvasText.text = experimentNetworking.message + experimentNetworking.resultCoins.ToString ();
 						//experimentNetworking.message = "";
-						update=false;
+						update = false;
 					}
 
-					if ( !experimentNetworking.resultMessage.Equals ("") & !(experimentNetworking.resultMessage=="")) {
+					if (!experimentNetworking.resultMessage.Equals ("") & !(experimentNetworking.resultMessage == "")) {
 
 						StartCoroutine (resultShow (experimentNetworking.resultMessage));
 						//experimentNetworking.resultMessage = "";
@@ -236,12 +232,17 @@ public class ExperimentController : NetworkBehaviour
 				//Debug.LogWarning (message);
 			}
 			//update effort until end
-			if (mode != runState.end & mode!=runState.answer)
+			if (mode != runState.end & mode != runState.answer) {
 				effortCoins = coinManager.currentCoins;
-			//works when syncvar gives new braodcast message to player
+				//works when syncvar gives new braodcast message to player
 		
+				//put here so overwrite with local message
+				if (_isLocalPlayer & oldMessage != experimentNetworking.message & !experimentNetworking.message.Equals ("") & !(experimentNetworking.message == "")) {
+					canvasText.text = experimentNetworking.message;
+					oldMessage = experimentNetworking.message;
+				}
 		
-		
+			}
 		}
 
 	}
@@ -300,7 +301,7 @@ public class ExperimentController : NetworkBehaviour
 				} else if (experimentNetworking.returnString == "End") {
 
 					mode = runState.end;
-					update=true;
+					update = true;
 
 				}
 
