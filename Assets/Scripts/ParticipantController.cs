@@ -14,6 +14,7 @@ public class ParticipantController :NetworkBehaviour
 	float startHeight = -1.3f;
 	Vector3 sitTargetV;
 	Transform lookAtEffector;
+
 	public enum modes
 	{
 		start,
@@ -62,10 +63,10 @@ public class ParticipantController :NetworkBehaviour
 		if (rearBone == null)
 			rearBone = transform.Find ("Armature/mixamorig:Hips");
 		//to focus on box
-		try{
-			lookAtEffector=GetComponentInChildren<SimpleMouseLook>().transform;
-		}catch {
-			lookAtEffector=transform.GetChild(0).GetChild(0).GetComponent<SimpleMouseLook>().transform;
+		try {
+			lookAtEffector = GetComponentInChildren<SimpleMouseLook> ().transform;
+		} catch {
+			lookAtEffector = transform.GetChild (0).GetChild (0).GetComponent<SimpleMouseLook> ().transform;
 		}
 		mode = modes.start;
 	
@@ -114,25 +115,28 @@ public class ParticipantController :NetworkBehaviour
 				relativePos = target - transform.position;
 			//relativePos.y=transform.position.y;
 				transformRotation = Quaternion.LookRotation (relativePos);
-				transform.rotation = Quaternion.Lerp (transform.rotation, transformRotation , .5f);	
+				transform.rotation = Quaternion.Lerp (transform.rotation, transformRotation, .5f);	
 		
-				if ((Vector3.Distance (transform.position, target) < 1f ) && (transform.rotation.eulerAngles.y-transformRotation.eulerAngles.y<1f)) {
+				if ((Vector3.Distance (transform.position, target) < 1f) && (transform.rotation.eulerAngles.y - transformRotation.eulerAngles.y < 1f)) {
 					//move between two effectors, first beside seat, next in front.
 					//find target for sit or you are sitting
-					if (walkTarget == null)
+					if (walkTarget == null) {
 						mode = modes.sit;
-					transformRotation = sitTarget.transform.rotation;
-					animator.SetBool ("Sit", true);
-					target = sitTargetV;
-					walkTarget = null;
-
+						animator.SetFloat ("Speed", 0);
+					} else {
+						transformRotation = sitTarget.transform.rotation;
+						animator.SetBool ("Sit", true);
+						sitTargetV.y = startHeight;
+						target = sitTargetV;
+						walkTarget = null;
+					}
 				}
 
 				break;
 			case modes.sit:
 			//sitting down
 				//look at box to help participant
-				lookAtEffector.position=box.transform.position;
+				lookAtEffector.position = box.transform.position;
 				animator.SetBool ("Sit", true);
 				animator.SetFloat ("Speed", 0);
 				canvasText.text = "You will contribute effort in the form of coins";
@@ -141,9 +145,9 @@ public class ParticipantController :NetworkBehaviour
 
 			//FIXME set standing at sittarget position
 			
-
-					transform.position = sitTargetV;
-					transform.rotation = sitTarget.transform.rotation;
+				sitTargetV.y = startHeight;
+				transform.position = sitTargetV;
+				transform.rotation = sitTarget.transform.rotation;
 
 
 				//got to sitting if finished sit motion
@@ -155,29 +159,35 @@ public class ParticipantController :NetworkBehaviour
 
 					//Debug.Log(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
 					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < .5f) {
-						if (animator.GetCurrentAnimatorStateInfo(0).IsName("sitting_idle"))mode = modes.sitting;
+						if (animator.GetCurrentAnimatorStateInfo (0).IsName ("sitting_idle"))
+							mode = modes.sitting;
 
 	
 					}
 				} else {
 					
-					if (animator.GetCurrentAnimatorStateInfo(0).IsName("sitting_idle"))mode = modes.sitting;
+					if (animator.GetCurrentAnimatorStateInfo (0).IsName ("sitting_idle"))
+						mode = modes.sitting;
 				}
 				break;
 			case modes.sitting:
-				
+
+				//controler sits over target
+				sitTargetV = rearTarget.transform.position;
+				sitTargetV.y = startHeight;
+				transform.position = sitTargetV;
+				transform.rotation = sitTarget.transform.rotation;
 				//reset to centre of seatr
 				if (rearBone != null & rearTarget != null) {
 					rearBone.transform.position = rearTarget.transform.position;
 				}
-				transform.position = sitTargetV;
-				transform.rotation = sitTarget.transform.rotation;
+
 				if (coinManager == null) {
 					coinManager = box.GetComponent<CoinManager> ();
 				}
 
 				//start experiment when sitting
-				if (animator.GetCurrentAnimatorStateInfo(0).IsName("sitting_idle")){
+				if (animator.GetCurrentAnimatorStateInfo (0).IsName ("sitting_idle")) {
 					mode = modes.run;
 					exp_cont = coinManager.GetComponent<ExperimentController> ();
 					exp_cont.ikActive = true;

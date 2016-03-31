@@ -203,7 +203,10 @@ public class ExperimentController : NetworkBehaviour
 						StartCoroutine (experimentNetworking.FetchStage (url, "Results", "", mode));
 						update = false;
 					}
-				
+					if ( !experimentNetworking.message.Equals ("") & !(experimentNetworking.message=="")){
+						canvasText.text = experimentNetworking.message + experimentNetworking.resultCoins.ToString ();
+						//experimentNetworking.message = "";
+					}
 						//FIXME should go to wait, but get message change
 						//mode = runState.wait;
 					
@@ -211,15 +214,15 @@ public class ExperimentController : NetworkBehaviour
 					break;
 				case runState.end:
 					
-					if ( !experimentNetworking.message.Equals ("")){
+					if ( !experimentNetworking.message.Equals ("") & !(experimentNetworking.message=="")){
 						canvasText.text = experimentNetworking.message + experimentNetworking.resultCoins.ToString ();
-						experimentNetworking.message = "";
+						//experimentNetworking.message = "";
 					}
 
-					if ( !experimentNetworking.resultMessage.Equals ("")) {
+					if ( !experimentNetworking.resultMessage.Equals ("") & !(experimentNetworking.resultMessage=="")) {
 
 						StartCoroutine (resultShow (experimentNetworking.resultMessage));
-
+						//experimentNetworking.resultMessage = "";
 
 					}
 					//gameManager.boxCount = -1;
@@ -247,7 +250,7 @@ public class ExperimentController : NetworkBehaviour
 	{
 		//make sure see return message before final result
 
-		yield return StartCoroutine (WaitForSeconds (5f));
+		yield return StartCoroutine (WaitForSeconds (30f));
 		//wait before send result
 	
 		canvasText.text = _resultMessage;

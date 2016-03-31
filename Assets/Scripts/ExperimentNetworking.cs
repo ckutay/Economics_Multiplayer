@@ -31,7 +31,8 @@ public class ExperimentNetworking : NetworkBehaviour
 		urlReturn = true;
 	}
 
-	public void callUpdate(){
+	public void callUpdate ()
+	{
 		
 
 		if (message != _message) {
@@ -42,88 +43,94 @@ public class ExperimentNetworking : NetworkBehaviour
 		}
 		_message = message;
 	}
+
 	public IEnumerator FetchStage (string _url, string find, string findInt, ExperimentController.runState _mode)
 	{
 		
-			urlReturn = false;
-			//Debug.LogWarning (url);
+		urlReturn = false;
+		//Debug.LogWarning (url);
 
-			yield return StartCoroutine (WaitForSeconds (.5f));
-			WWW www = new WWW (_url);
+		yield return StartCoroutine (WaitForSeconds (.5f));
+		WWW www = new WWW (_url);
 
-			yield return StartCoroutine (WaitForRequest (www));
-			//go to next step when done
+		yield return StartCoroutine (WaitForRequest (www));
+		//go to next step when done
 			
-			// StringBuilder sb = new StringBuilder();
-			string result = www.text;
-			JSONNode node = JSON.Parse (result);
+		// StringBuilder sb = new StringBuilder();
+		string result = www.text;
+		JSONNode node = JSON.Parse (result);
 
-			if (node != null) {
-				try {
-					//get stage message
+		if (node != null) {
+			try {
+				//get stage message
 					
-					if (node ["type_stage"] == "End") {
-						resultMessage = message;
-					}else 
-						message = node ["message"];
-				} catch {
-					//message = null;
+				if (node ["name"] == "Results") {
+					resultMessage = message;
+				} else if (node["message"]!="")
+					message = node ["message"];
+			} catch {
+				//message = null;
 					
-				}
+			}
 
-				//Debug.Log (message);
+			//Debug.Log (message);
 
-				if (find.Length != 0) {
+			if (find.Length != 0) {
 
-					returnString = node [find];
-					returnFloat = -1;
-					//	Debug.LogWarning (node);
-					if (find == "Results") {
-						//hack to get results into message- the time delay
-						//mens you cannot pick this up in the state machine
+				returnString = node [find];
+				returnFloat = -1;
+				//	Debug.LogWarning (node);
+				if (find == "Results") {
+					//hack to get results into message- the time delay
+					//mens you cannot pick this up in the state machine
 
 				
-						if (float.TryParse (returnString, out returnFloat)) {
-							//get back result from group submissions
+					if (float.TryParse (returnString, out returnFloat)) {
+						//get back result from group submissions
 					
 					
-						if (!coinManager.result & returnFloat >= 0 ) {
-								//set to display result only
-								resultCoins =	 (int)returnFloat;
+						if (!coinManager.result & returnFloat >= 0) {
+							//set to display result only
+							resultCoins = (int)returnFloat;
 							//display returned amount and no effort coins
-								coinManager.result = true;
-								coinManager.currentCoins -= resultCoins;
-							resultMessage+=(coinManager.maxCoins+1-coinManager.currentCoins).ToString();
-
-							}
-						urlReturn = true;
-							yield return true;
-
-							//message for localplayer/tokenbox only
+							coinManager.result = true;
+							coinManager.currentCoins -= resultCoins;
 						}
-					urlReturn = true;
-						yield return true;
-					} else if (Int32.TryParse (node [findInt], out returnInt)) {
-					urlReturn = true;
-						//Debug.Log(returnInt);
-						yield return true;
-					}
-				urlReturn = true;
-					yield  return true;
-				} else {
+							float returnTotal = 0;
+							string temp=node["Total"];
+							if (float.TryParse (temp, out returnTotal)) {
+								if(!resultMessage.Equals (""))resultMessage += returnTotal;
+							}
 
-				if (Int32.TryParse (node [findInt], out returnInt)){
-					urlReturn = true;
+					
+						urlReturn = true;
 						yield return true;
+
+						//message for localplayer/tokenbox only
+					}
+					urlReturn = true;
+					yield return true;
+				} else if (Int32.TryParse (node [findInt], out returnInt)) {
+					urlReturn = true;
+					//Debug.Log(returnInt);
+					yield return true;
 				}
-				}
+				urlReturn = true;
+				yield  return true;
 			} else {
-				//Debug.LogWarning ("No node on api read for " + find + " or " + findInt);
-				//canvas.message = "Errer in stages for experiment: " + node;
+
+				if (Int32.TryParse (node [findInt], out returnInt)) {
+					urlReturn = true;
+					yield return true;
+				}
+			}
+		} else {
+			//Debug.LogWarning ("No node on api read for " + find + " or " + findInt);
+			//canvas.message = "Errer in stages for experiment: " + node;
 			urlReturn = true;
 			yield return true;
 
-			}
+		}
 		urlReturn = true;
 		yield break;
 	}
@@ -150,4 +157,4 @@ public class ExperimentNetworking : NetworkBehaviour
 	}
 
  
- } 
+} 
