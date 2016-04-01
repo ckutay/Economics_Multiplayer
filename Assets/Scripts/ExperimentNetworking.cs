@@ -12,7 +12,7 @@ public class ExperimentNetworking : NetworkBehaviour
 	string _message;
 	public int resultCoins = -1;
 
-
+	public float returnTotal;
 	public CoinManager coinManager;
 
 	//returns from url
@@ -48,7 +48,7 @@ public class ExperimentNetworking : NetworkBehaviour
 	{
 		
 		urlReturn = false;
-		Debug.LogWarning (_url);
+		//Debug.LogWarning (_url);
 
 		yield return StartCoroutine (WaitForSeconds (.5f));
 		WWW www = new WWW (_url);
@@ -96,7 +96,7 @@ public class ExperimentNetworking : NetworkBehaviour
 							coinManager.result = true;
 							coinManager.currentCoins -= resultCoins;
 						}
-							float returnTotal = 0;
+							 returnTotal = 0;
 							string temp=node["Total"];
 							if (float.TryParse (temp, out returnTotal)) {
 								if(!resultMessage.Equals (""))resultMessage += returnTotal;

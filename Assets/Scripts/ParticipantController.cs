@@ -136,18 +136,18 @@ public class ParticipantController :NetworkBehaviour
 			case modes.sit:
 			//sitting down
 				//look at box to help participant
-				lookAtEffector.position = box.transform.position;
+
 				animator.SetBool ("Sit", true);
 				animator.SetFloat ("Speed", 0);
 				canvasText.text = "You will contribute effort in the form of coins";
-
+			
 			// use box target to back of chair for walk direction
 
 			//FIXME set standing at sittarget position
 			
 				sitTargetV.y = startHeight;
 				transform.position = sitTargetV;
-				transform.rotation = sitTarget.transform.rotation;
+
 
 
 				//got to sitting if finished sit motion
@@ -155,28 +155,22 @@ public class ParticipantController :NetworkBehaviour
 
 
 					//transform.position += relativePos;
-					rearBone.transform.position = Vector3.Lerp (rearBone.transform.position, rearTarget.transform.position, .5f);
-
+					transform.rotation = Quaternion.Slerp (transform.rotation, sitTarget.transform.rotation, Time.time * 1);
+				}
 					//Debug.Log(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
-					if (Vector3.Distance (rearBone.transform.position, rearTarget.transform.position) < .5f) {
-						if (animator.GetCurrentAnimatorStateInfo (0).IsName ("sitting_idle"))
-							mode = modes.sitting;
+
+				if (animator.GetCurrentAnimatorStateInfo (0).IsName ("sitting_idle"))
+					mode = modes.sitting;
 
 	
-					}
-				} else {
-					
-					if (animator.GetCurrentAnimatorStateInfo (0).IsName ("sitting_idle"))
-						mode = modes.sitting;
-				}
 				break;
 			case modes.sitting:
-
+				
 				//controler sits over centre of seat
-				sitTargetV=rearTarget.transform.position;
-				sitTargetV.y=startHeight;
-
-				if ( rearTarget != null) {
+				sitTargetV = rearTarget.transform.position;
+				sitTargetV.y = startHeight;
+				transform.rotation=sitTarget.transform.rotation;
+				if (rearTarget != null) {
 					transform.position = sitTargetV;
 				}
 
@@ -191,6 +185,7 @@ public class ParticipantController :NetworkBehaviour
 					exp_cont.ikActive = true;
 				
 				}
+				lookAtEffector.position = box.transform.position;
 				break;
 			case modes.run:
 				//rearBone.transform.position = rearTarget.transform.position;

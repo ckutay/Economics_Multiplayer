@@ -59,7 +59,7 @@ public class CommonNetwork : NetworkBehaviour {
 
 	public IEnumerator FetchParticipant (string url)
 	{
-		Debug.LogWarning(url);
+		//Debug.LogWarning(url);
 		//yield return StartCoroutine (WaitForSeconds (.1f));
 		//simple function for participant call only
 		WWW www = new WWW (IP_Address+url);
@@ -96,7 +96,7 @@ public class CommonNetwork : NetworkBehaviour {
 
 	public IEnumerator FetchHost_IP (string url, string find, string findInt)
 	{
-		Debug.LogWarning (url);
+		//Debug.LogWarning (url);
 		//get IP and Port numbers - slowly
 		yield return StartCoroutine (WaitForSeconds (.05f));
 

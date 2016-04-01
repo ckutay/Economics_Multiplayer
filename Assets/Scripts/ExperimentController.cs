@@ -231,6 +231,9 @@ public class ExperimentController : NetworkBehaviour
 				}
 				//Debug.LogWarning (message);
 			}
+			Debug.LogWarning(experimentNetworking.message);
+			Debug.LogWarning(experimentNetworking.resultMessage);
+			Debug.LogWarning(mode);
 			//update effort until end
 			if (mode != runState.end & mode != runState.answer) {
 				effortCoins = coinManager.currentCoins;
