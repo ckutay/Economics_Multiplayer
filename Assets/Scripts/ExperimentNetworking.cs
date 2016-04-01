@@ -48,7 +48,7 @@ public class ExperimentNetworking : NetworkBehaviour
 	{
 		
 		urlReturn = false;
-		//Debug.LogWarning (url);
+		Debug.LogWarning (_url);
 
 		yield return StartCoroutine (WaitForSeconds (.5f));
 		WWW www = new WWW (_url);
