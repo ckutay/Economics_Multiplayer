@@ -144,10 +144,11 @@ public class SetupServer : NetworkBehaviour
 		
 			if (server) {
 				//different comment for participant = experimenters as do not add to ecperiment listmax
-		//fix for TESTING
-				//url = "/experiments/participant?participant=1&experiment_id=" + commonNetwork.experiment_id;
-
+		
 				url = "/experiments/participant?participant=0&experiment_id=" + commonNetwork.experiment_id;
+				//fix for TESTING
+				url = "/experiments/participant?participant=1&experiment_id=" + commonNetwork.experiment_id;
+
 				yield return StartCoroutine (commonNetwork.FetchParticipant (url));
 				networkManager.StartHost ();
 				//Debug.LogWarning(commonNetwork.participant);

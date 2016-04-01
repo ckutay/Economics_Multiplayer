@@ -196,7 +196,7 @@ public class ExperimentController : NetworkBehaviour
 
 				case runState.answer:
 					//call for result once per participant
-					coinManager.result = True;
+					coinManager.result = true;
 					if (update) {
 						//get result for previous stage for each participant
 						url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + (resultStage) + "&round_id=" + round_id.ToString () + "&name=Result&participant_id=" + participant_id;
