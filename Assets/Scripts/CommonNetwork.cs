@@ -144,7 +144,7 @@ public class CommonNetwork : NetworkBehaviour {
 			}
 		} else {
 
-			Debug.LogWarning ("no node for " + find + " or " + findInt);
+			if (find.Length>0 || findInt.Length>0)Debug.LogWarning ("no node for " + find + " or " + findInt);
 
 			yield return false;
 		}

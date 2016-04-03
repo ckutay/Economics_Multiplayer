@@ -10,7 +10,7 @@ using SimpleJSON;
 public class PlayerNetworkSetup : NetworkBehaviour
 {
 
-	[SerializeField] Camera FPCharacterCam;
+	[SerializeField] public Camera FPCharacterCam;
 	[SerializeField] AudioListener audioListener;
 	public bool isHost;
 	GameManager gameManager;
@@ -149,8 +149,11 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				//first two effectors on chairbox
 				participantController.walkTarget = tokenBox.transform.parent.Find ("WalkTarget").gameObject;
 				participantController.sitTarget = tokenBox.transform.parent.Find ("SitTarget").gameObject;
-				participantController.rearTarget = tokenBox.transform.parent.Find ("RearTarget").gameObject;
-				spawnPoint=tokenBox.transform.parent.Find("SpawnPoint");
+				try{
+					participantController.rearTarget = tokenBox.transform.parent.Find ("RearTarget").gameObject;
+					}
+					catch{}
+					spawnPoint=tokenBox.transform.parent.Find("SpawnPoint");
 
 				Vector3 spawnPointV=spawnPoint.position;
 				//spawnpoint set on chair/box

@@ -9,7 +9,7 @@ public class ClearButton : MonoBehaviour {
 	void Start () {
 		startupColor=GetComponent<MeshRenderer> ().material.color ;
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 		if (_isLocalPlayer)SetToClear(true);

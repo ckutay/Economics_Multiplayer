@@ -19,8 +19,7 @@ public class SimpleMouseLook : MonoBehaviour
 	 Vector2 rotationRange = new Vector3 (100, 100);
 	 float rotationSpeed = 10;
 	 float dampingTime = 0.2f;
-	bool autoZeroVerticalOnMobile = true;
-	bool autoZeroHorizontalOnMobile = false;
+
 	bool relative = true;
 
 	//use hips as pivot
@@ -102,7 +101,7 @@ public class SimpleMouseLook : MonoBehaviour
 			m_FollowAngles = Vector3.SmoothDamp (m_FollowAngles, m_TargetAngles, ref m_FollowVelocity, dampingTime);
 			Quaternion angle = m_OriginalRotation * Quaternion.Euler (-m_FollowAngles.x, m_FollowAngles.y, m_FollowAngles.z);
 		
-			Vector3 lookPos = angle * dist;
+			//Vector3 lookPos = angle * dist;
 		
 			cam.transform.localRotation = angle;
 			// update the actual gameobject's rotation

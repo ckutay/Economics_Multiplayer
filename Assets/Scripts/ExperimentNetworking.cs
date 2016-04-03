@@ -103,7 +103,6 @@ public class ExperimentNetworking : NetworkBehaviour
 
 	public IEnumerator FetchResults (string _url, string find, string findInt, ExperimentController.runState _mode)
 	{
-		ExperimentController experimentController = transform.GetComponent<ExperimentController> ();
 		urlReturn = false;
 		//Debug.LogWarning (_url);
 

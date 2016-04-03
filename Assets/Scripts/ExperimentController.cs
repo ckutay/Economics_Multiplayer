@@ -29,7 +29,6 @@ public class ExperimentController : NetworkBehaviour
 	bool update = true;
 	string url;
 
-	int effortCoins;
 
 	public enum runState
 	{
@@ -63,7 +62,7 @@ public class ExperimentController : NetworkBehaviour
 	//[HideInInspector]
 
 	[SyncVar] public int stage_number = 0;
-	[SyncVar]public runState mode = runState.wait;
+	[SyncVar]public runState mode = runState.start;
 	//stage number when result recorded
 	int resultStage = 0;
 	public ExperimentController[] tokenBoxes;
@@ -111,7 +110,7 @@ public class ExperimentController : NetworkBehaviour
 	{
 		//wait for updates from api
 		round_id = gameManager.round_id;
-		if (experimentNetworking.urlReturn) {
+		if (experimentNetworking.urlReturn & mode!=runState.start) {
 			// url calls in rest of update do not work
 			if (isHost && _isLocalPlayer) {
 				//find next stage and message
@@ -234,9 +233,9 @@ public class ExperimentController : NetworkBehaviour
 		
 			//update effort until end
 			if (_isLocalPlayer & mode != runState.end & mode != runState.answer) {
-				effortCoins = coinManager.currentCoins;
+
 				//works when syncvar gives new broadcast message to player
-				Debug.LogWarning("here");
+			//	Debug.LogWarning("here");
 				//put here so overwrite with local message
 				if ( oldMessage != experimentNetworking.message & !experimentNetworking.message.Equals ("") & !(experimentNetworking.message == "")) {
 					canvasText.text = experimentNetworking.message;
