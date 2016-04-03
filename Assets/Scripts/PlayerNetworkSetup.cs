@@ -83,10 +83,26 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	{
 		//when you have the participant number setup all the variables on participatncontroller to enable them to locate objects and select
 		if (isLocalPlayer) {
-			
+			try {
+				boxCount=gameManager.boxCount;
+				///boxCount=1;
+				tokenBox= gameManager.tokenBoxes [boxCount];
+
+			} catch (Exception e) {
+				if (gameManager.boxCount > 0) {
+					if (canvasgo){
+						
+						audioListener.enabled = false;
+						canvasText.text = "You cannot enter this game. It is full or server is not started";
+						NetworkManager networkManager = GameObject.Find ("NetworkManager").GetComponent<NetworkManager> ();
+						networkManager.StopClient();
+					}
+					Debug.Log (e);
+					return;
+				}
+			}
 	
-			//Debug.Log ("Assigned to box " + gameManager.boxCount);
-	
+
 			//find local canvas inactive
 			canvasgo = gameObject.GetComponentInChildren <Canvas> (true);
 			if (canvasgo==null){
@@ -99,19 +115,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				canvasgo.gameObject.SetActive (true);
 				canvasText = canvasgo.transform.Find ("Text").gameObject.GetComponent<Text> ();
 			}
-			try {
-				boxCount=gameManager.boxCount;
-				///boxCount=1;
-				tokenBox= gameManager.tokenBoxes [boxCount];
 
-			} catch (Exception e) {
-				if (gameManager.boxCount > 0) {
-					if (canvasgo)
-						canvasText.text = "You cannot enter this game. It is full or server is not started";
-					Debug.Log (e);
-					return;
-				}
-			}
 
 			//this is a player so set up experiment controller
 			if (canvasgo) {
@@ -198,7 +202,6 @@ public class PlayerNetworkSetup : NetworkBehaviour
 		Cmd_update_round_id (gameManager.round_id);
 		NetworkIdentity nwI = tokenBox.AddComponent<NetworkIdentity> ();
 		nwI.localPlayerAuthority = true;
-		NetworkManager networkManager= GameObject.Find ("NetworkManager").GetComponent<NetworkManager> ();
 	
 		GameObject newBox = Instantiate (box);
 	
@@ -234,41 +237,26 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	}
 	[Command]
 	//single mesge send
-	public void Cmd_Set_Text(int _boxCount, string _message, string _resultMessage){
+	public void Cmd_Set_Text(int _boxCount, string _message){
 
 		ExperimentNetworking exp_network = gameManager.tokenBoxes [_boxCount].GetComponent<ExperimentNetworking> ();
 		exp_network.message = _message;
-		exp_network.resultMessage = _resultMessage;
+
 		}
 	//caleld form experiment controller to send update messages from ZTree
 	[Command]
-	public void Cmd_broadcast (string _message, string _resultMessage)
+	public void Cmd_broadcast (string _message)
 	{
-		Debug.LogWarning ("Broadcast");
+	//	Debug.LogWarning ("Broadcast");
 		//send message to all players - use synvar on script on Canvas??
 		GameObject[] gos;
 		gos = GameObject.FindGameObjectsWithTag ("Player");
 		//update as player enters
 		foreach (GameObject go in gos) {
-		//	try{
-		//		for (int i=0; i<boxCount;i++){
-			//		Debug.LogWarning("hosts");
-		//			Debug.LogWarning(gameManager.tokenBoxes [i].GetComponent<ExperimentController>().isHost);
-		//		}
-		//	}
-			//	catch{}
-			
+
 			try {
 				ExperimentNetworking exp_network=go.transform.GetComponent<PlayerNetworkSetup>().tokenBox.transform.GetComponent<ExperimentNetworking>();
 					exp_network.message=_message;
-				exp_network.resultMessage=_resultMessage;
-
-				//Transform tran = go.transform.Find ("FPCharacterCam").Find ("Canvas");
-
-				//tran = tran.Find ("Text");
-
-				//if (tran != null)
-				//	tran.gameObject.GetComponent<Text> ().text = _message;
 
 			} catch (Exception e) {
 
@@ -276,33 +264,6 @@ public class PlayerNetworkSetup : NetworkBehaviour
 			}
 
 		}
-		Rpc_broadcast (_message);
-
-	}
-	[ClientRpc]
-	public void Rpc_broadcast (string _message)
-	{
-		
-			//send message to all players - use synvar on script on Canvas??
-			GameObject[] gos;
-			gos = GameObject.FindGameObjectsWithTag ("Player");
-			//update as player enters
-			foreach (GameObject go in gos) {
-
-				try {
-					Transform tran = go.transform.Find ("FPCharacterCam").Find ("Canvas");
-
-					tran = tran.Find ("Text");
-
-					if (tran != null)
-						tran.gameObject.GetComponent<Text> ().text = _message;
-
-				} catch (Exception e) {
-
-					Debug.LogWarning (e);
-				}
-
-			}
 
 
 	}

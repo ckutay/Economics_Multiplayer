@@ -97,6 +97,7 @@ public class ParticipantController :NetworkBehaviour
 					target = walkTarget.transform.position;
 					animator.SetFloat ("Speed", 1);
 					mode = modes.walk;
+
 				}
 
 				break;
@@ -111,21 +112,22 @@ public class ParticipantController :NetworkBehaviour
 				break;
 			case modes.walk:
 			//walking use walkTarget for direction the sittarget
-
+				float diff=1;
 				relativePos = target - transform.position;
-			//relativePos.y=transform.position.y;
+				relativePos.y=0f;
 				transformRotation = Quaternion.LookRotation (relativePos);
-				transform.rotation = Quaternion.Lerp (transform.rotation, transformRotation, .5f);	
+				transform.rotation = Quaternion.Slerp (transform.rotation, transformRotation, Time.time * 10);	
 		
-				if ((Vector3.Distance (transform.position, target) < 1f) && (transform.rotation.eulerAngles.y - transformRotation.eulerAngles.y < 1f)) {
+				if ((Vector3.Distance (transform.position, target) < diff) && (transform.rotation.eulerAngles.y - transformRotation.eulerAngles.y < diff)) {
 					//move between two effectors, first beside seat, next in front.
 					//find target for sit or you are sitting
 					if (walkTarget == null) {
 						mode = modes.sit;
+						transform.position = sitTargetV;
 						animator.SetFloat ("Speed", 0);
 					} else {
-						transformRotation = sitTarget.transform.rotation;
-						animator.SetBool ("Sit", true);
+						
+						diff=0.5f;
 						sitTargetV.y = startHeight;
 						target = sitTargetV;
 						walkTarget = null;
@@ -145,32 +147,34 @@ public class ParticipantController :NetworkBehaviour
 
 			//FIXME set standing at sittarget position
 			
-				sitTargetV.y = startHeight;
-				transform.position = sitTargetV;
+			
 
 
 
 				//got to sitting if finished sit motion
-				if (rearBone != null & rearTarget != null) {
 
+					transformRotation = sitTarget.transform.rotation;
 
 					//transform.position += relativePos;
-					transform.rotation = Quaternion.Slerp (transform.rotation, sitTarget.transform.rotation, Time.time * 1);
-				}
+					transform.rotation = Quaternion.Slerp (transform.rotation, transformRotation, Time.time * 1);
+					if (transform.rotation.eulerAngles.y - transformRotation.eulerAngles.y < 1f) {
+						if (animator.GetCurrentAnimatorStateInfo (0).IsName ("sitting_idle"))
+							mode = modes.sitting;
+					}
+
 					//Debug.Log(Vector3.Distance (rearBone.transform.position, sitTarget.transform.position));
 
-				if (animator.GetCurrentAnimatorStateInfo (0).IsName ("sitting_idle"))
-					mode = modes.sitting;
 
 	
 				break;
 			case modes.sitting:
 				
 				//controler sits over centre of seat
-				sitTargetV = rearTarget.transform.position;
-				sitTargetV.y = startHeight;
-				transform.rotation=sitTarget.transform.rotation;
+			
+				transform.rotation = sitTarget.transform.rotation;
 				if (rearTarget != null) {
+					sitTargetV = rearTarget.transform.position;
+					sitTargetV.y = startHeight;
 					transform.position = sitTargetV;
 				}
 

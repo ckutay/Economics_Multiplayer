@@ -114,7 +114,7 @@ public class ExperimentController : NetworkBehaviour
 		if (experimentNetworking.urlReturn) {
 			// url calls in rest of update do not work
 			if (isHost && _isLocalPlayer) {
-				//find next step and message
+				//find next stage and message
 				updateMove ();
 				//message etc is send on Command on server and to all players
 				//the syncvar to localplayer
@@ -196,15 +196,18 @@ public class ExperimentController : NetworkBehaviour
 
 				case runState.answer:
 					//call for result once per participant
-					coinManager.result = true;
+					//coinManager.result = true; - set after collect result
 					if (update) {
 						//get result for previous stage for each participant
 						url = textFileReader.IP_Address + "/experiments/results?experiment_id=" + textFileReader.experiment_id + "&stage_number=" + (resultStage) + "&round_id=" + round_id.ToString () + "&name=Result&participant_id=" + participant_id;
-						//gets result and displays to local canvasText.text
-						StartCoroutine (experimentNetworking.FetchStage (url, "Results", "", mode));
+					
+						StartCoroutine (experimentNetworking.FetchResults (url, "Results", "", mode));
 						update = false;
 					}
-
+					Debug.LogWarning(experimentNetworking.message);
+					if (experimentNetworking.resultCoins>0)
+						canvasText.text = experimentNetworking.message+" "+experimentNetworking.resultCoins.ToString();
+					experimentNetworking.resultCoins=-100;
 						//FIXME should go to wait, but get message change
 						//mode = runState.wait;
 					
@@ -212,17 +215,14 @@ public class ExperimentController : NetworkBehaviour
 					break;
 				case runState.end:
 					
-					if (update & !experimentNetworking.message.Equals ("") & !(experimentNetworking.message == "")) {
-						canvasText.text = experimentNetworking.message + experimentNetworking.resultCoins.ToString ();
-						//experimentNetworking.message = "";
-						update = false;
-					}
 
-					if (!experimentNetworking.resultMessage.Equals ("") & !(experimentNetworking.resultMessage == "")) {
-
-						StartCoroutine (resultShow (experimentNetworking.resultMessage));
-						//experimentNetworking.resultMessage = "";
-
+					if (experimentNetworking.returnTotal>0) {
+						string resultMessage=experimentNetworking.message+" "+experimentNetworking.returnTotal.ToString();
+						Debug.LogWarning(resultMessage);
+						StartCoroutine (resultShow (resultMessage));
+						//reset to stop
+						experimentNetworking.returnTotal=-100;
+						experimentNetworking.message="";
 					}
 					//gameManager.boxCount = -1;
 					participantController.mode = ParticipantController.modes.stand;
@@ -231,16 +231,14 @@ public class ExperimentController : NetworkBehaviour
 				}
 				//Debug.LogWarning (message);
 			}
-			Debug.LogWarning(experimentNetworking.message);
-			Debug.LogWarning(experimentNetworking.resultMessage);
-			Debug.LogWarning(mode);
-			//update effort until end
-			if (mode != runState.end & mode != runState.answer) {
-				effortCoins = coinManager.currentCoins;
-				//works when syncvar gives new braodcast message to player
 		
+			//update effort until end
+			if (_isLocalPlayer & mode != runState.end & mode != runState.answer) {
+				effortCoins = coinManager.currentCoins;
+				//works when syncvar gives new broadcast message to player
+				Debug.LogWarning("here");
 				//put here so overwrite with local message
-				if (_isLocalPlayer & oldMessage != experimentNetworking.message & !experimentNetworking.message.Equals ("") & !(experimentNetworking.message == "")) {
+				if ( oldMessage != experimentNetworking.message & !experimentNetworking.message.Equals ("") & !(experimentNetworking.message == "")) {
 					canvasText.text = experimentNetworking.message;
 					oldMessage = experimentNetworking.message;
 				}
@@ -254,9 +252,9 @@ public class ExperimentController : NetworkBehaviour
 	{
 		//make sure see return message before final result
 
-		yield return StartCoroutine (WaitForSeconds (30f));
+		yield return StartCoroutine (WaitForSeconds (5f));
 		//wait before send result
-	
+		Debug.LogWarning("showing");
 		canvasText.text = _resultMessage;
 		yield return true;
 
