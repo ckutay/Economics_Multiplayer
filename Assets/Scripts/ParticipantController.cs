@@ -138,7 +138,7 @@ public class ParticipantController :NetworkBehaviour
 			
 				animator.SetBool ("Sit", true);
 				animator.SetFloat ("Speed", 0);
-				canvasText.text = "You will contribute effort in the form of coins";
+
 
 				transformRotation = sitTarget.transform.rotation;
 
@@ -168,7 +168,7 @@ public class ParticipantController :NetworkBehaviour
 						exp_cont = coinManager.GetComponent<ExperimentController> ();
 
 						exp_cont.ikActive = true;
-						exp_cont.mode = ExperimentController.runState.wait;
+						//exp_cont.mode = ExperimentController.runState.wait;
 				
 					
 

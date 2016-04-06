@@ -4,6 +4,7 @@ using SimpleJSON;
 using System;
 using UnityEngine.Networking;
 public class CommonNetwork : NetworkBehaviour {
+	//Network access for NetworkManager scripts
 	public bool isHost=false;
 	public bool update = true;
 

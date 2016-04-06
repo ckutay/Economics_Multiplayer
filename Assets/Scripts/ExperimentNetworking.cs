@@ -8,8 +8,9 @@ using UnityEngine.UI;
 
 public class ExperimentNetworking : NetworkBehaviour
 {
+	//Network acces for Coin/Expereiment scripts
 	public bool urlReturn;
-	string _message;
+	[SyncVar] string _message;
 	//store resutls to dispaly on canvas in exp Controller
 	public float resultCoins = -100;
 	public float returnTotal = -100;
@@ -120,8 +121,8 @@ public class ExperimentNetworking : NetworkBehaviour
 
 		if (node != null) {
 			
-			Debug.LogWarning ("result");
-			Debug.LogWarning (node);
+		//	Debug.LogWarning ("result");
+		//	Debug.LogWarning (node);
 
 			if (find.Length != 0) {
 
@@ -142,8 +143,8 @@ public class ExperimentNetworking : NetworkBehaviour
 						//display returned amount and no effort coins
 					
 						coinManager.currentCoins -= (int)Mathf.Floor (resultCoins);
-						Debug.LogWarning (message);
-						Debug.LogWarning (resultCoins);
+				//		Debug.LogWarning (message);
+				//		Debug.LogWarning (resultCoins);
 						coinManager.result = true;
 					}
 				

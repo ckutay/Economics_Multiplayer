@@ -9,7 +9,7 @@ using SimpleJSON;
 
 public class PlayerNetworkSetup : NetworkBehaviour
 {
-
+	//setup common componentes for participants and run CMD under network control
 	[SerializeField] public Camera FPCharacterCam;
 	[SerializeField] AudioListener audioListener;
 	public bool isHost;
@@ -64,7 +64,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 			while (textFileReader.readHost == null) {
 				//infact stays false as not playernetwork on host - FIXME
 				isHost = false;
-				Debug.LogWarning ("Getting host");
+
 			}
 
 
@@ -252,16 +252,14 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	[Command]
 	public void Cmd_broadcast (string _message)
 	{
-		//	Debug.LogWarning ("Broadcast");
-		//send message to all players - use synvar on script on Canvas??
-		GameObject[] gos;
-		gos = GameObject.FindGameObjectsWithTag ("Player");
+
 		//update as player enters
-		foreach (GameObject go in gos) {
+		foreach (GameObject  exp_conts in gameManager.tokenBoxes) {
 
 			try {
-				ExperimentNetworking exp_network = go.transform.GetComponent<PlayerNetworkSetup> ().tokenBox.transform.GetComponent<ExperimentNetworking> ();
-				exp_network.message = _message;
+					ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
+
+				exp_cont.experimentNetworking.message = _message;
 
 			} catch (Exception e) {
 
@@ -296,8 +294,8 @@ public class PlayerNetworkSetup : NetworkBehaviour
 
 
 		}
-		Rpc_change_currentStage (_stage_number, _mode);
-		Debug.LogWarning (_mode);
+		//Rpc_change_currentStage (_stage_number, _mode);
+
 	}
 
 	[ClientRpc]
