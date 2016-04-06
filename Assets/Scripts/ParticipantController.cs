@@ -8,13 +8,13 @@ using UnityEngine.Networking;
 public class ParticipantController :NetworkBehaviour
 {
 	//data is inserted from playernetworksetup when it starts
-
+	bool update=true;
 	public int participant;
 	public int participant_id;
 	float startHeight = -1.0f;
 	Vector3 sitTargetV;
 	Transform lookAtEffector;
-	float tableHeight=1.3f;
+
 	public enum modes
 	{
 		start,
@@ -33,12 +33,12 @@ public class ParticipantController :NetworkBehaviour
 
 	public GameObject walkTarget;
 	public GameObject sitTarget = null;
-	public GameObject rearTarget;
+
 	Quaternion transformRotation;
 	public Vector3 target;
 
 	PlayerNetworkSetup playerNetwork;
-	public Transform rearBone;
+
 	public CoinManager coinManager;
 	public modes mode = modes.start;
 
@@ -51,19 +51,14 @@ public class ParticipantController :NetworkBehaviour
 	public Text canvasText;
 
 	ExperimentController exp_cont;
-	Transform leftHandEffector;
-	Transform rightHandEffector;
+
 	// Use this for initialization
 	void Start ()
 	{
 		startHeight = transform.position.y;
-		leftHandEffector=GetComponent<IKBody>().leftHandObj;
-		rightHandEffector=GetComponent<IKBody>().rightHandObj;
 		playerNetwork = transform.GetComponent<PlayerNetworkSetup> ();
 		animator = GetComponent<Animator> ();
-		rearBone = transform.Find ("mixamorig:Hips");
-		if (rearBone == null)
-			rearBone = transform.Find ("Armature/mixamorig:Hips");
+
 		//to focus on box
 		try {
 			lookAtEffector = GetComponentInChildren<SimpleMouseLook> ().transform;
@@ -127,7 +122,7 @@ public class ParticipantController :NetworkBehaviour
 						animator.SetFloat ("Speed", 0);
 					} else {
 						
-						if(rearTarget!=null)diff = 0.4f;
+					diff = 0.4f;
 
 						target = sitTargetV;
 						walkTarget = null;
@@ -136,11 +131,10 @@ public class ParticipantController :NetworkBehaviour
 
 				break;
 			case modes.sit:
+				
 			//sitting down
-				//look at box to help participant
-				//put at target
-				//set active wihthand higher
 
+			
 			
 				animator.SetBool ("Sit", true);
 				animator.SetFloat ("Speed", 0);
@@ -148,13 +142,13 @@ public class ParticipantController :NetworkBehaviour
 
 				transformRotation = sitTarget.transform.rotation;
 
-					//transform.position += relativePos;
-				transform.rotation = Quaternion.Slerp (transform.rotation, transformRotation, Time.time * 1);
+	
+				transform.rotation = Quaternion.Slerp (transform.rotation, transformRotation, Time.time * .5f);
 				if (transform.rotation.eulerAngles.y - transformRotation.eulerAngles.y < .1f) {
 					//go to sitting if finished sit motion
 					if (animator.GetCurrentAnimatorStateInfo (0).IsName ("sitting_idle"))
 						mode = modes.sitting;
-				
+					
 				}
 
 
@@ -163,25 +157,13 @@ public class ParticipantController :NetworkBehaviour
 			case modes.sitting:
 				
 				//controler sits over centre of seat
-				bool continues = false;
-				//finish rotation
-				transform.rotation = sitTarget.transform.rotation;
-				if (rearTarget != null) {
-					sitTargetV = rearTarget.transform.position;
-					sitTargetV.y = startHeight;
-					transform.position = Vector3.Slerp (transform.position, sitTargetV, Time.time * 1);
-					if (Vector3.Distance (transform.position, sitTargetV) < 0.3f) {
-						transform.position = sitTargetV;
-						continues=true;
-					}
-				} else continues=true;
-			if (continues) {
+			
+
 					if (coinManager == null) {
 						coinManager = box.GetComponent<CoinManager> ();
 					}
 
 					//start experiment when sitting
-					if (animator.GetCurrentAnimatorStateInfo (0).IsName ("sitting_idle")) {
 						mode = modes.run;
 						exp_cont = coinManager.GetComponent<ExperimentController> ();
 
@@ -189,19 +171,18 @@ public class ParticipantController :NetworkBehaviour
 						exp_cont.mode = ExperimentController.runState.wait;
 				
 					
-						Vector3 pos= leftHandEffector.position;
-						pos.y*=tableHeight;
-						leftHandEffector.position=pos;
-						pos= rightHandEffector.position;
-						pos.y*=tableHeight;
-						rightHandEffector.position=pos;
-					}
-					lookAtEffector.position = box.transform.position;
-					playerNetwork.FPCharacterCam.transform.LookAt (lookAtEffector.position);
-				}
+
+
+					update=true;
+
 				break;
 			case modes.run:
-				
+				if(update){
+					lookAtEffector.position = box.transform.position;
+					//does nto work, goes strait back to mouse position
+					playerNetwork.FPCharacterCam.transform.LookAt (lookAtEffector.position);
+					update=false;
+				}
 				break;
 
 			}

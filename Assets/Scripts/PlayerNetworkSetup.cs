@@ -14,7 +14,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	[SerializeField] AudioListener audioListener;
 	public bool isHost;
 	GameManager gameManager;
-	float startHeight=-1.2f;
+	float startHeight = -1.2f;
 	CommonNetwork commonNetwork;
 	ParticipantController participantController;
 
@@ -38,9 +38,9 @@ public class PlayerNetworkSetup : NetworkBehaviour
 
 		textFileReader = GameObject.Find ("NetworkManager").GetComponent<TextFileReader> ();
 		//has been geenrated
-		if (gameManager.boxCount>-2){
+		if (gameManager.boxCount > -2) {
 
-			setup();
+			setup ();
 		}
 	}
 
@@ -48,16 +48,16 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	{
 
 
-	//	Debug.LogWarning(isLocalPlayer);
-		if (isLocalPlayer){
+		//	Debug.LogWarning(isLocalPlayer);
+		if (isLocalPlayer) {
 
-		GameObject mainCamera = GameObject.Find ("Main Camera");
-		if (mainCamera != null)
-			mainCamera.SetActive (false);
-			FPCharacterCam.gameObject.SetActive ( true);
-		FPCharacterCam.enabled = true;
-		audioListener.enabled = true;
-		//setup new characgter as player
+			GameObject mainCamera = GameObject.Find ("Main Camera");
+			if (mainCamera != null)
+				mainCamera.SetActive (false);
+			FPCharacterCam.gameObject.SetActive (true);
+			FPCharacterCam.enabled = true;
+			audioListener.enabled = true;
+			//setup new characgter as player
 		
 		
 
@@ -84,18 +84,18 @@ public class PlayerNetworkSetup : NetworkBehaviour
 		//when you have the participant number setup all the variables on participatncontroller to enable them to locate objects and select
 		if (isLocalPlayer) {
 			try {
-				boxCount=gameManager.boxCount;
+				boxCount = gameManager.boxCount;
 				///boxCount=1;
-				tokenBox= gameManager.tokenBoxes [boxCount];
+				tokenBox = gameManager.tokenBoxes [boxCount];
 
 			} catch (Exception e) {
 				if (gameManager.boxCount > 0) {
-					if (canvasgo){
+					if (canvasgo) {
 						
 						audioListener.enabled = false;
 						canvasText.text = "You cannot enter this game. It is full or server is not started";
 						NetworkManager networkManager = GameObject.Find ("NetworkManager").GetComponent<NetworkManager> ();
-						networkManager.StopClient();
+						networkManager.StopClient ();
 					}
 					Debug.Log (e);
 					return;
@@ -105,11 +105,12 @@ public class PlayerNetworkSetup : NetworkBehaviour
 
 			//find local canvas inactive
 			canvasgo = gameObject.GetComponentInChildren <Canvas> (true);
-			if (canvasgo==null){
+			if (canvasgo == null) {
 				//above seems to not worksometimes
-				try{
-					canvasgo=transform.Find("FPCharacterCam/Canvas").GetComponent <Canvas> ();
-			}catch{}
+				try {
+					canvasgo = transform.Find ("FPCharacterCam/Canvas").GetComponent <Canvas> ();
+				} catch {
+				}
 			}
 			if (canvasgo) {
 				canvasgo.gameObject.SetActive (true);
@@ -138,8 +139,6 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				//expController.player = gameObject;
 
 				expController.button = tokenBox.transform.Find ("Capsule");
-				expController.lefthandEffector = transform.Find ("Effectors").Find ("LeftHand Effector");
-
 
 				//expController.setupBox = transform.GetComponent<PlayerNetworkSetup> ();
 				expController.participant_id = commonNetwork.participant_id;
@@ -149,17 +148,14 @@ public class PlayerNetworkSetup : NetworkBehaviour
 				//first two effectors on chairbox
 				participantController.walkTarget = tokenBox.transform.parent.Find ("WalkTarget").gameObject;
 				participantController.sitTarget = tokenBox.transform.parent.Find ("SitTarget").gameObject;
-				try{
-					participantController.rearTarget = tokenBox.transform.parent.Find ("RearTarget").gameObject;
-					}
-					catch{}
-					spawnPoint=tokenBox.transform.parent.Find("SpawnPoint");
 
-				Vector3 spawnPointV=spawnPoint.position;
+				spawnPoint = tokenBox.transform.parent.Find ("SpawnPoint");
+
+				Vector3 spawnPointV = spawnPoint.position;
 				//spawnpoint set on chair/box
 
 			
-				spawnPointV.y=startHeight;
+				spawnPointV.y = startHeight;
 				transform.position = spawnPointV;
 			
 			
@@ -167,6 +163,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 
 
 				expController._isLocalPlayer = true;
+
 				tokenBox.GetComponent<CoinManager> ().player = this;
 				tokenBox.GetComponent<CoinManager> ()._isLocalPlayer = true;
 				tokenBox.GetComponent<CoinManager> ().SetToClear ();
@@ -183,11 +180,11 @@ public class PlayerNetworkSetup : NetworkBehaviour
 			Transform hips = transform.Find ("mixamorig:Hips");
 			if (hips == null)
 				hips = transform.Find ("Armature/mixamorig:Hips");
-			if(spawnPoint!=null){
-			Vector3 posspawn = spawnPoint.position;
-			posspawn.y = hips.position.y;
+			if (spawnPoint != null) {
+				Vector3 posspawn = spawnPoint.position;
+				posspawn.y = hips.position.y;
 
-			simpleMouseLook.dist = (simpleMouseLook.transform.position - posspawn);
+				simpleMouseLook.dist = (simpleMouseLook.transform.position - posspawn);
 			}
 		} else
 			Debug.LogWarning ("No Mouse Look Found");
@@ -208,49 +205,54 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	
 		GameObject newBox = Instantiate (box);
 	
-		NetworkServer.SpawnWithClientAuthority ( newBox, connectionToClient);
-		 gameManager.tokenBoxes [boxCount]=newBox;
+		NetworkServer.SpawnWithClientAuthority (newBox, connectionToClient);
+		gameManager.tokenBoxes [boxCount] = newBox;
 	}
 
 	//from AddPlayer when have instatiated character
 	[ClientRpc]
 	public void	Rpc_set_prefab ()
 	{
-		if (isLocalPlayer){
-		//instnatied prefab
-		setup ();
+		if (isLocalPlayer) {
+			//instnatied prefab
+			setup ();
 		}
 	}
 	//called form coin manager as has no authority
 	[Command]
-	public void Cmd_Update_Coins(int _boxCount, int _currentCoins, bool _result){
+	public void Cmd_Update_Coins (int _boxCount, int _currentCoins, bool _result)
+	{
 
-		gameManager.tokenBoxes[_boxCount].GetComponent<CoinManager>().currentCoins = _currentCoins;
-		gameManager.tokenBoxes[_boxCount].GetComponent<CoinManager>().result = _result;
+		gameManager.tokenBoxes [_boxCount].GetComponent<CoinManager> ().currentCoins = _currentCoins;
+		gameManager.tokenBoxes [_boxCount].GetComponent<CoinManager> ().result = _result;
 		//use syncvar?
 		//Rpc_Update_Coins (_boxCount, _currentCoins, _result);
 	}
+
 	[ClientRpc]
-	public void Rpc_Update_Coins(int _boxCount, int _currentCoins, bool _result){
+	public void Rpc_Update_Coins (int _boxCount, int _currentCoins, bool _result)
+	{
 
 		if (gameManager) {
 			gameManager.tokenBoxes [_boxCount].GetComponent<CoinManager> ().currentCoins = _currentCoins;
 			gameManager.tokenBoxes [_boxCount].GetComponent<CoinManager> ().result = _result;
 		}
 	}
+
 	[Command]
 	//single mesge send
-	public void Cmd_Set_Text(int _boxCount, string _message){
+	public void Cmd_Set_Text (int _boxCount, string _message)
+	{
 
 		ExperimentNetworking exp_network = gameManager.tokenBoxes [_boxCount].GetComponent<ExperimentNetworking> ();
 		exp_network.message = _message;
 
-		}
+	}
 	//caleld form experiment controller to send update messages from ZTree
 	[Command]
 	public void Cmd_broadcast (string _message)
 	{
-	//	Debug.LogWarning ("Broadcast");
+		//	Debug.LogWarning ("Broadcast");
 		//send message to all players - use synvar on script on Canvas??
 		GameObject[] gos;
 		gos = GameObject.FindGameObjectsWithTag ("Player");
@@ -258,8 +260,8 @@ public class PlayerNetworkSetup : NetworkBehaviour
 		foreach (GameObject go in gos) {
 
 			try {
-				ExperimentNetworking exp_network=go.transform.GetComponent<PlayerNetworkSetup>().tokenBox.transform.GetComponent<ExperimentNetworking>();
-					exp_network.message=_message;
+				ExperimentNetworking exp_network = go.transform.GetComponent<PlayerNetworkSetup> ().tokenBox.transform.GetComponent<ExperimentNetworking> ();
+				exp_network.message = _message;
 
 			} catch (Exception e) {
 
@@ -267,29 +269,39 @@ public class PlayerNetworkSetup : NetworkBehaviour
 			}
 
 		}
+		//Rpc_change_message(_message);
 
+	}
 
+	[ClientRpc]
+	public void Rpc_change_message (string _message)
+	{
+		foreach (GameObject  exp_conts in gameManager.tokenBoxes) {
+			ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
+			exp_cont.experimentNetworking.message = _message;
+		}
 	}
 
 	//called form expereiment controlle r to update stage from Ztree
 	[Command]
-	public void Cmd_change_currentStage ( int _stage_number, ExperimentController.runState _mode)
+	public void Cmd_change_currentStage (int _stage_number, ExperimentController.runState _mode)
 	{
 		//Debug.LogWarning ("stage");
-			foreach (GameObject  exp_conts in gameManager.tokenBoxes) {
-				ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
+		foreach (GameObject  exp_conts in gameManager.tokenBoxes) {
+			ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
 		
-				exp_cont.stage_number = _stage_number;
+			exp_cont.stage_number = _stage_number;
 
-				exp_cont.mode = _mode;
+			exp_cont.mode = _mode;
 
 
-			}
-			Rpc_change_currentStage (_stage_number, _mode);
-
+		}
+		Rpc_change_currentStage (_stage_number, _mode);
+		Debug.LogWarning (_mode);
 	}
+
 	[ClientRpc]
-	public void Rpc_change_currentStage ( int _stage_number, ExperimentController.runState _mode)
+	public void Rpc_change_currentStage (int _stage_number, ExperimentController.runState _mode)
 	{
 
 		foreach (GameObject  exp_conts in gameManager.tokenBoxes) {
@@ -305,14 +317,17 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	}
 
 	[Command]
-	public void Cmd_ikActive(int _boxCount, bool _ikActive){
+	public void Cmd_ikActive (int _boxCount, bool _ikActive)
+	{
 		
-		gameManager.tokenBoxes[_boxCount].GetComponent<ExperimentController>().ikActive = _ikActive;
+		gameManager.tokenBoxes [_boxCount].GetComponent<ExperimentController> ().ikActive = _ikActive;
 
 	}
-	[Command]
-	public void Cmd_update_round_id(int _round_id){
 
-		gameManager.update_round_id(_round_id);
+	[Command]
+	public void Cmd_update_round_id (int _round_id)
+	{
+
+		gameManager.update_round_id (_round_id);
 	}
 }

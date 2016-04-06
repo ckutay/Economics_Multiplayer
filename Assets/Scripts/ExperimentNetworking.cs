@@ -63,12 +63,14 @@ public class ExperimentNetworking : NetworkBehaviour
 			try {
 				//get stage message
 					
-				if (node ["message"] != "" & !node["message"].Equals(""))
+				if (node ["message"] != "" & !node ["message"].Equals (""))
 					message = node ["message"];
 			} catch {
 				//message = null;
 					
 			}
+
+			Debug.LogWarning (node);
 
 //looking for required part of node
 			if (find.Length != 0) {
@@ -118,8 +120,8 @@ public class ExperimentNetworking : NetworkBehaviour
 
 		if (node != null) {
 			
-
-			//Debug.Log (message);
+			Debug.LogWarning ("result");
+			Debug.LogWarning (node);
 
 			if (find.Length != 0) {
 
@@ -129,28 +131,28 @@ public class ExperimentNetworking : NetworkBehaviour
 		
 				//hack to get results into message- the time delay
 				//mens you cannot pick this up in the state machine
-			//	Debug.LogWarning (experimentController.mode);
-			//	Debug.LogWarning ("Return" + returnString);
+				//	Debug.LogWarning (experimentController.mode);
+				//	Debug.LogWarning ("Return" + returnString);
 				if (float.TryParse (returnString, out resultCoins)) {
 					//get back result from group submissions
 
 
-					if (!coinManager.result ) {
+					if (!coinManager.result) {
 
 						//display returned amount and no effort coins
 					
-						coinManager.currentCoins -= (int)Mathf.Floor(resultCoins);
+						coinManager.currentCoins -= (int)Mathf.Floor (resultCoins);
 						Debug.LogWarning (message);
 						Debug.LogWarning (resultCoins);
-						coinManager.result=true;
+						coinManager.result = true;
 					}
 				
 					returnString = node ["Total"];
 
 					if (float.TryParse (returnString, out returnTotal)) {
 
-				//		Debug.LogWarning (message);
-				//		Debug.LogWarning (returnTotal);
+						//		Debug.LogWarning (message);
+						//		Debug.LogWarning (returnTotal);
 					}
 
 

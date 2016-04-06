@@ -18,7 +18,7 @@ public class ExperimentController : NetworkBehaviour
 	public TextFileReader textFileReader;
 
 	//move hand to enter coins - effector from Playernetworksetup
-	public Transform lefthandEffector;
+
 	public bool enter;
 	public Transform button;
 	[SyncVar]public bool ikActive;
@@ -58,6 +58,12 @@ public class ExperimentController : NetworkBehaviour
 	public ParticipantController participantController;
 	public ExperimentNetworking experimentNetworking;
 	public bool _isLocalPlayer;
+
+	//moving hands
+	float tableHeight = -0.1f;
+	Transform leftHandEffector;
+	Transform rightHandEffector;
+	Vector3 target;
 	//Shared from host
 	//[HideInInspector]
 
@@ -87,6 +93,7 @@ public class ExperimentController : NetworkBehaviour
 		experimentNetworking = GetComponent<ExperimentNetworking> ();
 		start = true;
 
+	
 	}
 
 	void setupHost ()
@@ -110,7 +117,7 @@ public class ExperimentController : NetworkBehaviour
 	{
 		//wait for updates from api
 		round_id = gameManager.round_id;
-		if (experimentNetworking.urlReturn & mode!=runState.start) {
+		if (experimentNetworking.urlReturn & mode != runState.start) {
 			// url calls in rest of update do not work
 			if (isHost && _isLocalPlayer) {
 				//find next stage and message
@@ -121,19 +128,25 @@ public class ExperimentController : NetworkBehaviour
 
 
 			//not working in start unless set to active later  as no tokenbox- then not visible for collection tokenboxes FIXME
-			if (start)
+			if (start) {
 				setupHost ();
-	
+			
+			}
 
 			if (_isLocalPlayer & coinManager.player) {
 				//set from the server syncvar
+				leftHandEffector = coinManager.player.transform.GetComponent<IKBody> ().leftHandObj;
+				rightHandEffector = coinManager.player.transform.GetComponent<IKBody> ().rightHandObj;
 
-				if (ikBody != null & coinManager.player != null)
+				if (ikBody != null & coinManager.player != null) {
 					ikBody.ikActive = ikActive;
-				else
+
+				} else
 					//get component if null
 					ikBody = coinManager.player.gameObject.GetComponent<IKBody> ();
-			
+			}//else
+			//	coinManager.player=
+			if (_isLocalPlayer) {
 				switch (mode) {
 				case runState.start:
 					//show this at start
@@ -150,6 +163,20 @@ public class ExperimentController : NetworkBehaviour
 						waiting = true;
 						coinManager.isFinished = false;
 					}
+					//arbitrary - set hands on table
+					try {
+						Vector3 pos = leftHandEffector.position;
+						pos.y = tableHeight;
+						leftHandEffector.position = pos;
+						pos = rightHandEffector.position;
+						pos.y = tableHeight;
+						rightHandEffector.position = pos;
+						//get rotation of box
+						target = button.transform.position;
+						leftHandEffector.rotation = coinManager.gameObject.transform.parent.rotation * Quaternion.Euler (-18f, -15f, 40f);
+						rightHandEffector.rotation = coinManager.gameObject.transform.parent.rotation * Quaternion.Euler (-18f, -15f, -40f);
+					} catch {
+					}
 					//don't change message so not rewritten
 					break;
 				case runState.ask:
@@ -157,16 +184,17 @@ public class ExperimentController : NetworkBehaviour
 					//ikActive = true;
 					//send to server then SyncVar
 					if (ikActive) {
-						coinManager.player.Cmd_ikActive (boxCount, true);
+						if (coinManager.player != null)
+							coinManager.player.Cmd_ikActive (boxCount, true);
 
 						//set up to change coins
 						coinManager._isLocalPlayer = true;
-							
-						Vector3 target = button.transform.position;
-						lefthandEffector.rotation = coinManager.gameObject.transform.parent.rotation * Quaternion.Euler (-18f, -15f, 40f);
-						//need to add rotation of chair
+						//need to add rotation of box - eg 90 deg
+						target = button.transform.position;
+						leftHandEffector.rotation = coinManager.gameObject.transform.parent.rotation * Quaternion.Euler (-18f, -15f, 40f);
 
-						lefthandEffector.transform.position = target;
+
+						leftHandEffector.transform.position = target;
 						button.GetComponent<ClearButton> ()._isLocalPlayer = true;
 						//send coin number	
 						canvasText.text = experimentNetworking.message + " You have selected " + coinManager.currentCoins + " coins";
@@ -184,7 +212,8 @@ public class ExperimentController : NetworkBehaviour
 							StartCoroutine (experimentNetworking.FetchStage (url, "", "", mode));
 							//not playing anymore
 							ikActive = false;
-							coinManager.player.Cmd_ikActive (boxCount, false);
+							if (coinManager.player != null)
+								coinManager.player.Cmd_ikActive (boxCount, false);
 							url = "";
 							mode = runState.wait;
 							//cannot use button
@@ -203,10 +232,10 @@ public class ExperimentController : NetworkBehaviour
 						StartCoroutine (experimentNetworking.FetchResults (url, "Results", "", mode));
 						update = false;
 					}
-					Debug.LogWarning(experimentNetworking.message);
-					if (experimentNetworking.resultCoins>0)
-						canvasText.text = experimentNetworking.message+" "+experimentNetworking.resultCoins.ToString();
-					experimentNetworking.resultCoins=-100;
+					Debug.LogWarning (experimentNetworking.message);
+					if (experimentNetworking.resultCoins > 0)
+						canvasText.text = experimentNetworking.message + " " + experimentNetworking.resultCoins.ToString ();
+					experimentNetworking.resultCoins = -100;
 						//FIXME should go to wait, but get message change
 						//mode = runState.wait;
 					
@@ -215,13 +244,13 @@ public class ExperimentController : NetworkBehaviour
 				case runState.end:
 					
 
-					if (experimentNetworking.returnTotal>0) {
-						string resultMessage=experimentNetworking.message+" "+experimentNetworking.returnTotal.ToString();
-						Debug.LogWarning(resultMessage);
+					if (experimentNetworking.returnTotal > 0) {
+						string resultMessage = experimentNetworking.message + " " + experimentNetworking.returnTotal.ToString ();
+						Debug.LogWarning (resultMessage);
 						StartCoroutine (resultShow (resultMessage));
 						//reset to stop
-						experimentNetworking.returnTotal=-100;
-						experimentNetworking.message="";
+						experimentNetworking.returnTotal = -100;
+						experimentNetworking.message = "";
 					}
 					//gameManager.boxCount = -1;
 					participantController.mode = ParticipantController.modes.stand;
@@ -235,9 +264,9 @@ public class ExperimentController : NetworkBehaviour
 			if (_isLocalPlayer & mode != runState.end & mode != runState.answer) {
 
 				//works when syncvar gives new broadcast message to player
-			//	Debug.LogWarning("here");
+				//	Debug.LogWarning("here");
 				//put here so overwrite with local message
-				if ( oldMessage != experimentNetworking.message & !experimentNetworking.message.Equals ("") & !(experimentNetworking.message == "")) {
+				if (oldMessage != experimentNetworking.message & !experimentNetworking.message.Equals ("") & !(experimentNetworking.message == "")) {
 					canvasText.text = experimentNetworking.message;
 					oldMessage = experimentNetworking.message;
 				}
@@ -253,7 +282,7 @@ public class ExperimentController : NetworkBehaviour
 
 		yield return StartCoroutine (WaitForSeconds (5f));
 		//wait before send result
-		Debug.LogWarning("showing");
+		Debug.LogWarning ("showing");
 		canvasText.text = _resultMessage;
 		yield return true;
 

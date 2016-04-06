@@ -19,7 +19,7 @@ using UnityEngine.VR;
 	public Transform charactr;
 	public Transform cam;
 	Vector3 dist;
-	float zdir;
+
         private Quaternion m_CharacterTargetRot;
         private Quaternion m_CameraTargetRot;
         private bool m_cursorIsLocked = true;
@@ -29,7 +29,7 @@ using UnityEngine.VR;
             m_CharacterTargetRot = charactr.localRotation;
             m_CameraTargetRot = cam.localRotation;
 		dist = (transform.position-charactr.position/10);
-		zdir=transform.position.z;
+	
         }
 
 

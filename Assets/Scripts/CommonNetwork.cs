@@ -116,8 +116,7 @@ public class CommonNetwork : NetworkBehaviour {
 				if (find=="Host_IP")Host_IP = node [find];
 			
 				//UNet bug - cannot use local host IP
-				//if (Host_IP==Network.player.ipAddress)Host_IP="127.0.0.1";
-
+		
 				yield return true;
 			} else if (findInt.Length != 0) {
 				
