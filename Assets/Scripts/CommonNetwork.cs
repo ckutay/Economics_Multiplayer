@@ -4,6 +4,7 @@ using SimpleJSON;
 using System;
 using UnityEngine.Networking;
 public class CommonNetwork : NetworkBehaviour {
+	//Network access for NetworkManager scripts
 	public bool isHost=false;
 	public bool update = true;
 
@@ -59,7 +60,7 @@ public class CommonNetwork : NetworkBehaviour {
 
 	public IEnumerator FetchParticipant (string url)
 	{
-		Debug.LogWarning(url);
+		//Debug.LogWarning(url);
 		//yield return StartCoroutine (WaitForSeconds (.1f));
 		//simple function for participant call only
 		WWW www = new WWW (IP_Address+url);
@@ -96,7 +97,7 @@ public class CommonNetwork : NetworkBehaviour {
 
 	public IEnumerator FetchHost_IP (string url, string find, string findInt)
 	{
-		Debug.LogWarning (url);
+		//Debug.LogWarning (url);
 		//get IP and Port numbers - slowly
 		yield return StartCoroutine (WaitForSeconds (.05f));
 
@@ -116,8 +117,7 @@ public class CommonNetwork : NetworkBehaviour {
 				if (find=="Host_IP")Host_IP = node [find];
 			
 				//UNet bug - cannot use local host IP
-				//if (Host_IP==Network.player.ipAddress)Host_IP="127.0.0.1";
-
+		
 				yield return true;
 			} else if (findInt.Length != 0) {
 				
@@ -144,7 +144,7 @@ public class CommonNetwork : NetworkBehaviour {
 			}
 		} else {
 
-			Debug.LogWarning ("no node for " + find + " or " + findInt);
+			if (find.Length>0 || findInt.Length>0)Debug.LogWarning ("no node for " + find + " or " + findInt);
 
 			yield return false;
 		}

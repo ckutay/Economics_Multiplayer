@@ -107,24 +107,22 @@ public class CoinManager : NetworkBehaviour
 				isFinished = true;
 			}
 			//send to server
-
 			
 		if(_isLocalPlayer)player.Cmd_Update_Coins(boxCount, currentCoins, result);
-
-		//updateCoins(currentCoins);
+	
 
 	}
 	//enact server update on coins
-	void FixedUpdate(){
-		if(_isLocalPlayer)
-		updateCoins (currentCoins);
-	}
+	//void FixedUpdate(){
+//		if(_isLocalPlayer)
+//		updateCoins (currentCoins);
+///	}
 	void updateCoins(int _currentCoins){
 		{
 			currentCoins = _currentCoins;
 			if (_isLocalPlayer) {
 				
-				if (currentCoins >= 0) {
+				if (currentCoins >= 0 & currentCoins<=maxCoins) {
 					for (int i = maxCoins; i >= currentCoins; i--) {
 			
 						effort [i].SetActive (false);
@@ -143,11 +141,6 @@ public class CoinManager : NetworkBehaviour
 			}
 		}
 	}
-	//when returns from server
-
-	
-
-
 
 
 	public void SetToClear ()

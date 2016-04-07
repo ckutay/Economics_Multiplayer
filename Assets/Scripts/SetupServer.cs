@@ -14,7 +14,7 @@ public class SetupServer : NetworkBehaviour
 	bool connected = false;
 
 	public string Host_IP;
-	public int Port;
+	 int Port=7777;
 	bool server = true;
 
 
@@ -57,7 +57,7 @@ public class SetupServer : NetworkBehaviour
 					string url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Host_IP=" + Network.player.ipAddress;
 					StartCoroutine (commonNetwork.FetchHost_IP (url, find, ""));
 					findInt = "Port";
-					url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Port=11000";
+					url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Port="+Port.ToString();
 					StartCoroutine (commonNetwork.FetchHost_IP (url, "", findInt));
 					//reset participants
 					url = "/experiments/participant?experiment_id=" + commonNetwork.experiment_id + "&participant=-1";
@@ -66,15 +66,15 @@ public class SetupServer : NetworkBehaviour
 					url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Host_IP";
 					StartCoroutine (commonNetwork.FetchHost_IP (url, find, ""));
 					//repeat?
-					find = "Port";
+					find = "";
 					url = "/experiments/setup?experiment_id=" + commonNetwork.experiment_id + "&Port";
 					StartCoroutine (commonNetwork.FetchHost_IP (url, "", ""));
 					//reset expereiment round - also remvoe from ztree FIXME
 					findInt = "round_id";
-					url = "/experiments/next_round?experiment_id=" + commonNetwork.experiment_id ;
+					url = "/experiments/next_round?experiment_id=" + commonNetwork.experiment_id;
 					StartCoroutine (commonNetwork.FetchHost_IP (url, "", findInt));
 					//Debug.LogWarning("Setup Ztree");
-				
+					
 				}
 
 				//GUILayout.Label ("Network server is not running.");
@@ -86,7 +86,7 @@ public class SetupServer : NetworkBehaviour
 			
 				if (GUILayout.Button ("Start/Join Server")) { 
 					//set up your IP
-				
+
 					StartCoroutine (setupLink ());
 				}
 
@@ -126,7 +126,7 @@ public class SetupServer : NetworkBehaviour
 
 			//reset expereiment round - also remvoe from ztree FIXME
 			findInt = "round_id";
-			url = "/experiments/get_round?experiment_id=" + commonNetwork.experiment_id ;
+			url = "/experiments/get_round?experiment_id=" + commonNetwork.experiment_id;
 			StartCoroutine (commonNetwork.FetchHost_IP (url, "", findInt));
 			//get results
 			Host_IP = commonNetwork.Host_IP;
@@ -146,7 +146,7 @@ public class SetupServer : NetworkBehaviour
 				//different comment for participant = experimenters as do not add to ecperiment listmax
 		
 				url = "/experiments/participant?participant=0&experiment_id=" + commonNetwork.experiment_id;
-				//fix for TESTING
+				//uncomment for TESTING without experimenter
 				//url = "/experiments/participant?participant=1&experiment_id=" + commonNetwork.experiment_id;
 
 				yield return StartCoroutine (commonNetwork.FetchParticipant (url));

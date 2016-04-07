@@ -8,10 +8,12 @@ using UnityEngine.UI;
 
 public class ExperimentNetworking : NetworkBehaviour
 {
+	//Network acces for Coin/Expereiment scripts
 	public bool urlReturn;
-	string _message;
-	public int resultCoins = -1;
-
+	[SyncVar] string _message;
+	//store resutls to dispaly on canvas in exp Controller
+	public float resultCoins = -100;
+	public float returnTotal = -100;
 
 	public CoinManager coinManager;
 
@@ -22,7 +24,7 @@ public class ExperimentNetworking : NetworkBehaviour
 
 
 	[SyncVar] public string message = "";
-	[SyncVar] public string resultMessage = "";
+
 
 	void Start ()
 	{
@@ -34,22 +36,21 @@ public class ExperimentNetworking : NetworkBehaviour
 	public void callUpdate ()
 	{
 		
-
-		if (message != _message) {
+		//message changed from expereiment controller request to server
+		if (message != _message && !message.Equals("")) {
 			//send update of result Message too for when it comes in
-			//empy message not displayed
-			coinManager.player.Cmd_broadcast (message, resultMessage);
+
+			coinManager.player.Cmd_broadcast (message);
 
 		}
+		//store lastes message
 		_message = message;
 	}
 
 	public IEnumerator FetchStage (string _url, string find, string findInt, ExperimentController.runState _mode)
 	{
-		
 		urlReturn = false;
-		Debug.LogWarning (_url);
-
+		//Debug.LogWarning (_url);
 		yield return StartCoroutine (WaitForSeconds (.5f));
 		WWW www = new WWW (_url);
 
@@ -64,59 +65,108 @@ public class ExperimentNetworking : NetworkBehaviour
 			try {
 				//get stage message
 					
-				if (node ["name"] == "Results") {
-					resultMessage = message;
-				} else if (node["message"]!="")
+				if (node ["message"] != "" & !node ["message"].Equals (""))
 					message = node ["message"];
 			} catch {
 				//message = null;
 					
 			}
 
-			//Debug.Log (message);
+			Debug.LogWarning (node);
 
+//looking for required part of node
 			if (find.Length != 0) {
 
 				returnString = node [find];
 				returnFloat = -1;
 				//	Debug.LogWarning (node);
-				if (find == "Results") {
-					//hack to get results into message- the time delay
-					//mens you cannot pick this up in the state machine
-
-				
-					if (float.TryParse (returnString, out returnFloat)) {
-						//get back result from group submissions
-					
-					
-						if (!coinManager.result & returnFloat >= 0) {
-							//set to display result only
-							resultCoins = (int)returnFloat;
-							//display returned amount and no effort coins
-							coinManager.result = true;
-							coinManager.currentCoins -= resultCoins;
-						}
-							float returnTotal = 0;
-							string temp=node["Total"];
-							if (float.TryParse (temp, out returnTotal)) {
-								if(!resultMessage.Equals (""))resultMessage += returnTotal;
-							}
-
-					
-						urlReturn = true;
-						yield return true;
-
-						//message for localplayer/tokenbox only
-					}
-					urlReturn = true;
-					yield return true;
-				} else if (Int32.TryParse (node [findInt], out returnInt)) {
+				if (Int32.TryParse (node [findInt], out returnInt)) {
 					urlReturn = true;
 					//Debug.Log(returnInt);
 					yield return true;
 				}
 				urlReturn = true;
 				yield  return true;
+			} else {
+
+				if (Int32.TryParse (node [findInt], out returnInt)) {
+					urlReturn = true;
+					yield return true;
+				}
+			}
+		} else {
+			//Debug.LogWarning ("No node on api read for " + find + " or " + findInt);
+			//canvas.message = "Errer in stages for experiment: " + node;
+			urlReturn = true;
+			yield return true;
+
+		}
+		urlReturn = true;
+		yield break;
+	}
+
+	public IEnumerator FetchResults (string _url, string find, string findInt, ExperimentController.runState _mode)
+	{
+		urlReturn = false;
+		//Debug.LogWarning (_url);
+
+	
+		WWW www = new WWW (_url);
+
+		yield return StartCoroutine (WaitForRequest (www));
+		//go to next step when done
+
+		// StringBuilder sb = new StringBuilder();
+		string result = www.text;
+		JSONNode node = JSON.Parse (result);
+
+		if (node != null) {
+			
+		//	Debug.LogWarning ("result");
+		//	Debug.LogWarning (node);
+
+			if (find.Length != 0) {
+
+				returnString = node [find];
+
+				//	Debug.LogWarning (node);
+		
+				//hack to get results into message- the time delay
+				//mens you cannot pick this up in the state machine
+				//	Debug.LogWarning (experimentController.mode);
+				//	Debug.LogWarning ("Return" + returnString);
+				if (float.TryParse (returnString, out resultCoins)) {
+					//get back result from group submissions
+
+
+					if (!coinManager.result) {
+
+						//display returned amount and no effort coins
+					
+						coinManager.currentCoins -= (int)Mathf.Floor (resultCoins);
+				//		Debug.LogWarning (message);
+				//		Debug.LogWarning (resultCoins);
+						coinManager.result = true;
+					}
+				
+					returnString = node ["Total"];
+
+					if (float.TryParse (returnString, out returnTotal)) {
+
+						//		Debug.LogWarning (message);
+						//		Debug.LogWarning (returnTotal);
+					}
+
+
+					urlReturn = true;
+					yield return true;
+
+					//message for localplayer/tokenbox only
+				}
+				urlReturn = true;
+				yield return true;
+
+			
 			} else {
 
 				if (Int32.TryParse (node [findInt], out returnInt)) {

@@ -4,12 +4,12 @@ using System.Collections;
 public class ClearButton : MonoBehaviour {
 	public Material green;
 	public bool _isLocalPlayer;
-	Material startupColor;
+	Color startupColor;
 	// Use this for initialization
 	void Start () {
-		startupColor=GetComponent<MeshRenderer> ().material ;
+		startupColor=GetComponent<MeshRenderer> ().material.color ;
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 		if (_isLocalPlayer)SetToClear(true);
@@ -19,6 +19,6 @@ public class ClearButton : MonoBehaviour {
 		if (setting & GetComponent<MeshRenderer> ().material != green)
 			GetComponent<MeshRenderer> ().material.color = Color.green;
 		else
-			GetComponent<MeshRenderer> ().material = startupColor;
+			GetComponent<MeshRenderer> ().material.color = startupColor;
 	}
 }

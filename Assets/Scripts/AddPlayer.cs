@@ -29,16 +29,23 @@ public class AddPlayer : NetworkBehaviour
 
 				//have not updated count yet
 				if (gameManager.boxCount >= commonNetwork.max_participants) {
+					GameObject mainCamera = GameObject.Find ("Main Camera");
+				
+					if (mainCamera != null) 
+						mainCamera.SetActive (false);
 					FPCharacterCam.gameObject.SetActive (true);
 					FPCharacterCam.enabled = true;
 					audioListener.enabled = true;
 					//add wrning to default player
 					Canvas canvasgo = gameObject.GetComponentInChildren <Canvas> (true);
 					if (canvasgo) {
+						//FIXME need to disconnect and setup message
 						canvasgo.gameObject.SetActive (true);
 						canvasgo.enabled = true;
 						Text canvasText = canvasgo.transform.Find ("Text").gameObject.GetComponent<Text> ();
 						canvasText.text = "You cannot join this game as the server is full";
+						//NetworkManager networkManager = GameObject.Find ("NetworkManager").GetComponent<NetworkManager> ();
+						//networkManager.StopClient();
 					}
 			
 				} else if (gameManager.boxCount > -2) {

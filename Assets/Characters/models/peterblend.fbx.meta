@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: 928bc224d00a92e4a82bb26582d36ea2
-timeCreated: 1454279161
-licenseType: Pro
+timeCreated: 1459500656
+licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
@@ -433,14 +433,6 @@ ModelImporter:
         modified: 0
     - boneName: mixamorig:RightEye
       humanName: RightEye
-      limit:
-        min: {x: 0, y: 0, z: 0}
-        max: {x: 0, y: 0, z: 0}
-        value: {x: 0, y: 0, z: 0}
-        length: 0
-        modified: 0
-    - boneName: mixamorig:Jaw
-      humanName: Jaw
       limit:
         min: {x: 0, y: 0, z: 0}
         max: {x: 0, y: 0, z: 0}
