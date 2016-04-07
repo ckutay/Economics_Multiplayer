@@ -352,7 +352,7 @@ public class ExperimentController : NetworkBehaviour
 			} catch {
 			}
 
-
+			//checks message update on networking class if message for mode is new one
 		
 			experimentNetworking.callUpdate ();
 

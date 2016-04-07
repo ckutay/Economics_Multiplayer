@@ -109,14 +109,14 @@ public class CoinManager : NetworkBehaviour
 			//send to server
 			
 		if(_isLocalPlayer)player.Cmd_Update_Coins(boxCount, currentCoins, result);
-
+	
 
 	}
 	//enact server update on coins
-	void FixedUpdate(){
-		if(_isLocalPlayer)
-		updateCoins (currentCoins);
-	}
+	//void FixedUpdate(){
+//		if(_isLocalPlayer)
+//		updateCoins (currentCoins);
+///	}
 	void updateCoins(int _currentCoins){
 		{
 			currentCoins = _currentCoins;

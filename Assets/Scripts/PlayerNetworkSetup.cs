@@ -225,7 +225,7 @@ public class PlayerNetworkSetup : NetworkBehaviour
 
 		gameManager.tokenBoxes [_boxCount].GetComponent<CoinManager> ().currentCoins = _currentCoins;
 		gameManager.tokenBoxes [_boxCount].GetComponent<CoinManager> ().result = _result;
-		//use syncvar?
+		//use syncvar
 		//Rpc_Update_Coins (_boxCount, _currentCoins, _result);
 	}
 
@@ -257,9 +257,9 @@ public class PlayerNetworkSetup : NetworkBehaviour
 		foreach (GameObject  exp_conts in gameManager.tokenBoxes) {
 
 			try {
-					ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
+					ExperimentNetworking exp_network = exp_conts.GetComponent<ExperimentNetworking> ();
 
-				exp_cont.experimentNetworking.message = _message;
+				exp_network.message = _message;
 
 			} catch (Exception e) {
 
@@ -275,8 +275,16 @@ public class PlayerNetworkSetup : NetworkBehaviour
 	public void Rpc_change_message (string _message)
 	{
 		foreach (GameObject  exp_conts in gameManager.tokenBoxes) {
-			ExperimentController exp_cont = exp_conts.GetComponent<ExperimentController> ();
-			exp_cont.experimentNetworking.message = _message;
+
+			try {
+				ExperimentNetworking exp_network = exp_conts.GetComponent<ExperimentNetworking> ();
+
+				exp_network.message = _message;
+
+			} catch (Exception e) {
+
+				Debug.LogWarning (e);
+			}
 		}
 	}
 

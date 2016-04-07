@@ -36,13 +36,14 @@ public class ExperimentNetworking : NetworkBehaviour
 	public void callUpdate ()
 	{
 		
-
-		if (message != _message) {
+		//message changed from expereiment controller request to server
+		if (message != _message && !message.Equals("")) {
 			//send update of result Message too for when it comes in
-			//empy message not displayed
+
 			coinManager.player.Cmd_broadcast (message);
 
 		}
+		//store lastes message
 		_message = message;
 	}
 
